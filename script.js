@@ -23,7 +23,6 @@
     initLoadAnimations(EASE);
     initScrollAnimations(EASE);
     initImageParallax();
-    initNavbarScroll();
     initDropdowns(MOBILE_BREAKPOINT);
     initMobileNavbar(MOBILE_BREAKPOINT, EASE);
   });
@@ -304,23 +303,7 @@
   }
 
   /* ========================================================================
-     5. NAVBAR BACKGROUND ON SCROLL
-  ======================================================================== */
-
-  function initNavbarScroll() {
-    const navbar = document.querySelector(".navbar");
-    if (!navbar) return;
-
-    const updateNavbar = () => {
-      navbar.classList.toggle("is--scrolled", window.scrollY > 1);
-    };
-
-    updateNavbar();
-    window.addEventListener("scroll", updateNavbar, { passive: true });
-  }
-
-  /* ========================================================================
-     6. NAVBAR DROPDOWNS
+     5. NAVBAR DROPDOWNS
 
      .btn--drop
      .trigger
@@ -332,109 +315,141 @@
     const dropdowns = [...document.querySelectorAll(".btn--drop")];
     if (!dropdowns.length) return;
 
-    const closeDropdown = (dropdown, immediate = false) => {
-      const menu = dropdown.querySelector(".drop--menu");
-      const arrow = dropdown.querySelector(".drop--arrow");
-      const trigger = dropdown.querySelector(".trigger");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    function getParts(dropdown) {
+      return {
+        trigger: dropdown.querySelector(".trigger"),
+        triggerLink: dropdown.querySelector(".trigger .button.is--drop"),
+        menu: dropdown.querySelector(".drop--menu"),
+        arrow: dropdown.querySelector(".drop--arrow"),
+        links: [...dropdown.querySelectorAll(".drop--menu > a")],
+      };
+    }
+
+    function closeDropdown(dropdown, immediate = false) {
+      const { trigger, triggerLink, menu, arrow } = getParts(dropdown);
+      if (!menu) return;
 
       dropdown.classList.remove("is--open");
       trigger?.setAttribute("aria-expanded", "false");
+      triggerLink?.setAttribute("aria-expanded", "false");
 
-      if (immediate || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        gsap.set(menu, { clearProps: "all" });
+      gsap.killTweensOf([menu, arrow]);
+
+      if (immediate || reducedMotion.matches) {
         gsap.set(arrow, { rotate: 0 });
+        gsap.set(menu, {
+          display: "none",
+          opacity: 0,
+          height: breakpoint.matches ? 0 : "auto",
+          y: breakpoint.matches ? 0 : "0.5rem",
+          pointerEvents: "none",
+        });
         return;
       }
 
-      gsap.to(arrow, { rotate: 0, duration: 0.3, ease: "power2.out" });
+      gsap.to(arrow, { rotate: 0, duration: 0.25, ease: "power2.out" });
 
       if (breakpoint.matches) {
         gsap.to(menu, {
           height: 0,
           opacity: 0,
-          duration: 0.35,
+          duration: 0.32,
           ease: "power2.inOut",
-          onComplete: () => gsap.set(menu, { display: "none" }),
+          onComplete: () => gsap.set(menu, { display: "none", pointerEvents: "none" }),
         });
       } else {
         gsap.to(menu, {
           opacity: 0,
           y: "0.5rem",
-          duration: 0.25,
+          duration: 0.22,
           ease: "power2.in",
-          onComplete: () => gsap.set(menu, { display: "none" }),
+          onComplete: () => gsap.set(menu, { display: "none", pointerEvents: "none" }),
         });
       }
-    };
+    }
 
-    const openDropdown = (dropdown) => {
-      const menu = dropdown.querySelector(".drop--menu");
-      const arrow = dropdown.querySelector(".drop--arrow");
-      const trigger = dropdown.querySelector(".trigger");
+    function openDropdown(dropdown) {
+      const { trigger, triggerLink, menu, arrow, links } = getParts(dropdown);
       if (!menu) return;
 
-      dropdowns.forEach((item) => {
-        if (item !== dropdown) closeDropdown(item);
+      dropdowns.forEach((other) => {
+        if (other !== dropdown) closeDropdown(other);
       });
 
       dropdown.classList.add("is--open");
       trigger?.setAttribute("aria-expanded", "true");
+      triggerLink?.setAttribute("aria-expanded", "true");
 
-      gsap.set(menu, { display: "flex" });
-      gsap.to(arrow, { rotate: 180, duration: 0.35, ease: "power2.out" });
+      gsap.killTweensOf([menu, arrow, ...links]);
+      gsap.set(menu, { display: "flex", pointerEvents: "auto" });
+      gsap.to(arrow, { rotate: 180, duration: 0.3, ease: "power2.out" });
+
+      if (reducedMotion.matches) {
+        gsap.set(menu, { opacity: 1, height: "auto", y: 0 });
+        return;
+      }
 
       if (breakpoint.matches) {
         gsap.fromTo(
           menu,
           { height: 0, opacity: 0 },
-          {
-            height: "auto",
-            opacity: 1,
-            duration: 0.42,
-            ease: "power2.out",
-          },
+          { height: "auto", opacity: 1, duration: 0.38, ease: "power2.out" },
+        );
+
+        gsap.fromTo(
+          links,
+          { opacity: 0, y: "0.5rem" },
+          { opacity: 1, y: 0, duration: 0.35, stagger: 0.045, ease: "power3.out" },
         );
       } else {
         gsap.fromTo(
           menu,
           { opacity: 0, y: "0.5rem" },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.3,
-            ease: "power2.out",
-          },
+          { opacity: 1, y: 0, duration: 0.28, ease: "power2.out" },
+        );
+
+        gsap.fromTo(
+          links,
+          { opacity: 0, y: "0.35rem" },
+          { opacity: 1, y: 0, duration: 0.3, stagger: 0.035, ease: "power3.out" },
         );
       }
-    };
+    }
 
-    dropdowns.forEach((dropdown) => {
-      const trigger = dropdown.querySelector(".trigger");
-      const triggerLink = trigger?.querySelector("a");
-      const menu = dropdown.querySelector(".drop--menu");
+    function toggleDropdown(dropdown) {
+      dropdown.classList.contains("is--open")
+        ? closeDropdown(dropdown)
+        : openDropdown(dropdown);
+    }
 
-      if (!trigger || !menu) return;
+    dropdowns.forEach((dropdown, index) => {
+      const { trigger, triggerLink, menu } = getParts(dropdown);
+      if (!trigger || !triggerLink || !menu) return;
 
-      trigger.setAttribute("role", "button");
-      trigger.setAttribute("tabindex", "0");
+      const menuId = menu.id || `comlog-dropdown-${index + 1}`;
+      menu.id = menuId;
+
       trigger.setAttribute("aria-expanded", "false");
+      triggerLink.setAttribute("aria-expanded", "false");
+      triggerLink.setAttribute("aria-controls", menuId);
+      triggerLink.setAttribute("aria-haspopup", "true");
 
-      const toggle = (event) => {
-        if (breakpoint.matches) {
+      closeDropdown(dropdown, true);
+
+      triggerLink.addEventListener("click", (event) => {
+        // Dropdown triggers only control their submenu.
+        event.preventDefault();
+        event.stopPropagation();
+        toggleDropdown(dropdown);
+      });
+
+      triggerLink.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowDown") {
           event.preventDefault();
-        }
-
-        dropdown.classList.contains("is--open")
-          ? closeDropdown(dropdown)
-          : openDropdown(dropdown);
-      };
-
-      trigger.addEventListener("click", toggle);
-
-      trigger.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          toggle(event);
+          openDropdown(dropdown);
+          menu.querySelector("a")?.focus();
         }
       });
 
@@ -446,21 +461,26 @@
         if (!breakpoint.matches) closeDropdown(dropdown);
       });
 
-      triggerLink?.addEventListener("click", (event) => {
-        if (breakpoint.matches) event.preventDefault();
+      dropdown.addEventListener("focusin", () => {
+        if (!breakpoint.matches) openDropdown(dropdown);
+      });
+
+      dropdown.addEventListener("focusout", (event) => {
+        if (!breakpoint.matches && !dropdown.contains(event.relatedTarget)) {
+          closeDropdown(dropdown);
+        }
       });
     });
 
-    document.addEventListener("pointerdown", (event) => {
+    document.addEventListener("click", (event) => {
       dropdowns.forEach((dropdown) => {
         if (!dropdown.contains(event.target)) closeDropdown(dropdown);
       });
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        dropdowns.forEach((dropdown) => closeDropdown(dropdown));
-      }
+      if (event.key !== "Escape") return;
+      dropdowns.forEach((dropdown) => closeDropdown(dropdown));
     });
 
     breakpoint.addEventListener("change", () => {
@@ -469,7 +489,7 @@
   }
 
   /* ========================================================================
-     7. TABLET / MOBILE NAVBAR
+     6. TABLET / MOBILE NAVBAR
 
      .navbar
      .nav--menu

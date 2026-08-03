@@ -100,46 +100,9 @@ body.is--locked {
 }
 
 /* ========================================================================== 
-   NAVBAR
+   NAVBAR CONTROLS
+   The navbar color/background remains fully controlled by Webflow.
 ========================================================================== */
-
-.navbar {
-  transition: background-color 0.35s ease;
-}
-
-.navbar.is--scrolled:not(.is--menu-open) {
-  background-color: #01070b !important;
-}
-
-.menu--trigger {
-  position: relative;
-  z-index: 1002;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.menu--trigger:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 0.3rem;
-}
-
-.menu--to-open,
-.menu--to-close {
-  display: block;
-  width: 100%;
-  height: auto;
-  color: currentColor;
-  transform-origin: center;
-  will-change: transform, opacity;
-}
-
-.menu--to-close {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transform: scale(0.75) rotate(-90deg);
-  pointer-events: none;
-}
 
 /* ========================================================================== 
    DROPDOWNS
@@ -149,14 +112,24 @@ body.is--locked {
   position: relative;
 }
 
-.btn--drop .trigger {
+.btn--drop .trigger,
+.btn--drop .button.is--drop {
   position: relative;
   z-index: 2;
+}
+
+.btn--drop .button.is--drop {
   cursor: pointer;
+}
+
+.drop--arrow {
+  transform: rotate(0deg);
+  transform-origin: center;
 }
 
 .drop--menu {
   display: none;
+  flex-direction: column;
   opacity: 0;
   pointer-events: none;
   will-change: transform, opacity, height;
@@ -176,7 +149,18 @@ body.is--locked {
     top: 100%;
     left: 0;
     z-index: 1003;
-    flex-direction: column;
+    width: max-content;
+    min-width: 100%;
+  }
+
+  /* Invisible bridge prevents the dropdown closing across a small visual gap. */
+  .drop--menu::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    height: 0.75rem;
   }
 }
 
