@@ -19,6 +19,7 @@
     const EASE = "power4.out";
     const MOBILE_BREAKPOINT = window.matchMedia("(max-width: 991px)");
 
+    neutralizeLegacyNavbar(MOBILE_BREAKPOINT);
     initButtonHover();
     initLoadAnimations(EASE);
     initScrollAnimations(EASE);
@@ -27,13 +28,84 @@
     initMobileNavbar(MOBILE_BREAKPOINT, EASE);
   });
 
+
+  /* ========================================================================
+     0. LEGACY NAVBAR CLEANUP
+
+     Removes effects left by the previous B4Cars script:
+     - .is--scrolled
+     - inline navbar background-color
+     - desktop nav menu hidden through inline GSAP styles
+  ======================================================================== */
+
+  function neutralizeLegacyNavbar(breakpoint) {
+    const navbar = document.querySelector(".navbar");
+    const menu = document.querySelector(".nav--menu");
+
+    if (!navbar || !menu) return;
+
+    const restoreNavbarBackground = () => {
+      navbar.classList.remove("is--scrolled");
+      navbar.style.removeProperty("background-color");
+    };
+
+    const restoreDesktopMenu = () => {
+      if (breakpoint.matches) return;
+
+      menu.classList.remove("is--open");
+      menu.style.removeProperty("display");
+      menu.style.removeProperty("opacity");
+      menu.style.removeProperty("pointer-events");
+      menu.style.removeProperty("height");
+      menu.style.removeProperty("transform");
+      menu.style.removeProperty("filter");
+
+      menu.querySelectorAll(":scope > *").forEach((item) => {
+        item.style.removeProperty("opacity");
+        item.style.removeProperty("transform");
+        item.style.removeProperty("translate");
+        item.style.removeProperty("rotate");
+        item.style.removeProperty("scale");
+        item.style.removeProperty("filter");
+      });
+    };
+
+    const repair = () => {
+      restoreNavbarBackground();
+      restoreDesktopMenu();
+    };
+
+    repair();
+
+    /*
+      Runs after older scroll listeners and removes the legacy inline color.
+      This does not apply a new color: Webflow keeps full control.
+    */
+    window.addEventListener(
+      "scroll",
+      () => requestAnimationFrame(restoreNavbarBackground),
+      { passive: true },
+    );
+
+    breakpoint.addEventListener("change", repair);
+
+    const observer = new MutationObserver(() => {
+      requestAnimationFrame(repair);
+    });
+
+    observer.observe(navbar, {
+      attributes: true,
+      attributeFilter: ["class", "style"],
+    });
+  }
+
   /* ========================================================================
      1. BUTTON HOVER
      Uses .btn-animate-chars__text and .btn--arrow
   ======================================================================== */
 
   function initButtonHover() {
-    const textElements = document.querySelectorAll(".btn-animate-chars__text");
+    const textElements = document.querySelectorAll(".btn-animate-chars__text, [data-button-animate-chars]");
     const delayStep = 0.012;
 
     textElements.forEach((element) => {
@@ -362,13 +434,22 @@
 
       dropdown.classList.remove("is--open");
 
-      gsap.set(menu, {
-        display: "none",
-        opacity: 0,
-        height: breakpoint.matches ? 0 : "auto",
-        y: breakpoint.matches ? 0 : "0.5rem",
-        pointerEvents: "none",
-      });
+      if (breakpoint.matches) {
+        gsap.set(menu, {
+          display: "none",
+          opacity: 0,
+          height: 0,
+          y: 0,
+          pointerEvents: "none",
+        });
+      } else {
+        gsap.set(menu, {
+          clearProps: "display,height",
+          opacity: 0,
+          y: "0.5rem",
+          pointerEvents: "none",
+        });
+      }
 
       if (arrow) {
         gsap.set(arrow, { rotate: 0 });
@@ -533,18 +614,6 @@
 
           const firstLink = menu.querySelector("a, button");
           firstLink?.focus();
-        }
-      });
-
-      dropdown.addEventListener("mouseenter", () => {
-        if (!breakpoint.matches) {
-          openDropdown(dropdown);
-        }
-      });
-
-      dropdown.addEventListener("mouseleave", () => {
-        if (!breakpoint.matches) {
-          closeDropdown(dropdown);
         }
       });
 

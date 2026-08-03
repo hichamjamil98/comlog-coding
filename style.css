@@ -16,13 +16,15 @@ body.is--locked {
    BUTTON HOVER
 ========================================================================== */
 
-.btn-animate-chars__text {
+.btn-animate-chars__text,
+[data-button-animate-chars] {
   display: inline-block;
   overflow: hidden;
   vertical-align: bottom;
 }
 
-.btn-animate-chars__text span {
+.btn-animate-chars__text span,
+[data-button-animate-chars] span {
   position: relative;
   display: inline-block;
   transform: translateY(0);
@@ -34,17 +36,32 @@ body.is--locked {
 .btn--arrow,
 .drop--arrow {
   transform-origin: center;
-  transition: transform 0.4s cubic-bezier(0.625, 0.05, 0, 1);
   will-change: transform;
+}
+
+.btn--arrow {
+  transition: transform 0.4s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.drop--arrow {
+  transition: transform 0.35s cubic-bezier(0.625, 0.05, 0, 1);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .button:hover .btn-animate-chars__text span,
-  .btn--drop:hover .btn-animate-chars__text span {
+  .button:hover [data-button-animate-chars] span,
+  .btn:hover .btn-animate-chars__text span,
+  .btn:hover [data-button-animate-chars] span,
+  .nav--menu a:hover .btn-animate-chars__text span,
+  .nav--menu a:hover [data-button-animate-chars] span,
+  .btn--drop > .trigger:hover .btn-animate-chars__text span,
+  .btn--drop > .trigger:hover [data-button-animate-chars] span {
     transform: translateY(-1.25em);
   }
 
-  .button:hover .btn--arrow {
+  .button:hover .btn--arrow,
+  .btn:hover .btn--arrow,
+  .nav--menu a:hover .btn--arrow {
     transform: translateX(0.2rem);
   }
 }
@@ -102,6 +119,35 @@ body.is--locked {
 /* ========================================================================== 
    NAVBAR CONTROLS
 ========================================================================== */
+
+/*
+  Keep the navbar background exactly as configured in Webflow.
+  These rules only neutralize the previous script's scroll state.
+*/
+.navbar.is--scrolled {
+  background-color: revert-layer !important;
+}
+
+@media screen and (min-width: 992px) {
+  .navbar {
+    background-color: revert-layer !important;
+  }
+
+  .nav--menu {
+    display: flex !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .nav--menu > * {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
 
 .menu--trigger {
   position: relative;
@@ -161,15 +207,36 @@ body.is--locked {
   flex-direction: column;
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
   will-change: transform, opacity, height;
 }
 
 .btn--drop.is--open > .drop--menu {
+  visibility: visible;
   pointer-events: auto;
 }
 
 .btn--drop.is--open .drop--arrow {
   transform: rotate(180deg);
+}
+
+
+@media screen and (min-width: 992px) and (hover: hover) {
+  .btn--drop:hover > .drop--menu,
+  .btn--drop:focus-within > .drop--menu,
+  .btn--drop.is--open > .drop--menu {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: translateY(0) !important;
+  }
+
+  .btn--drop:hover .drop--arrow,
+  .btn--drop:focus-within .drop--arrow,
+  .btn--drop.is--open .drop--arrow {
+    transform: rotate(180deg) !important;
+  }
 }
 
 @media screen and (min-width: 992px) {
@@ -209,13 +276,10 @@ body.is--locked {
     display: none;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: center;
     gap: 1.25rem;
 
     width: 100%;
     height: 100dvh;
-    padding: 7rem 1.5rem 2rem;
-
     opacity: 0;
     pointer-events: none;
     overflow-y: auto;
