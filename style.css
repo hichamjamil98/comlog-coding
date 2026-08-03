@@ -28,21 +28,23 @@ body.is--locked {
 
 .btn-animate-chars__text,
 [data-button-animate-chars] {
-  display: inline-block;
-  height: 1.05em;
-  line-height: 1.05;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 1.2em;
+  line-height: 1.2;
   overflow: hidden;
   vertical-align: middle;
-  clip-path: inset(0 0 0.04em 0);
+  isolation: isolate;
 }
 
 .btn-animate-chars__text span,
 [data-button-animate-chars] span {
   position: relative;
   display: inline-block;
-  line-height: 1.05;
+  line-height: 1.2;
   transform: translateY(0);
-  text-shadow: 0 1.05em currentColor;
+  text-shadow: 0 1.4em currentColor;
   transition: transform 0.55s cubic-bezier(0.625, 0.05, 0, 1);
   will-change: transform;
 }
@@ -65,8 +67,10 @@ body.is--locked {
   .button:hover .btn-animate-chars__text span,
   .button:hover [data-button-animate-chars] span,
   .btn:hover .btn-animate-chars__text span,
-  .btn:hover [data-button-animate-chars] span {
-    transform: translateY(-1.05em);
+  .btn:hover [data-button-animate-chars] span,
+  .btn--drop:hover .btn-animate-chars__text span,
+  .btn--drop:hover [data-button-animate-chars] span {
+    transform: translateY(-1.4em);
   }
 
   .button:hover .btn--arrow,
