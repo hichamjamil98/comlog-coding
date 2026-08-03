@@ -283,3 +283,8 @@ body.is--locked {
     z-index: 1001;
   }
 }
+
+.nav--brand {
+  position: relative;
+  z-index: 1009 ;
+}
