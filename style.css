@@ -252,38 +252,3 @@ body.is--locked {
     transform: none !important;
   }
 }
-
-/* ==========================================================================
-   KEEP NAV BRAND VISIBLE WHEN MOBILE MENU IS OPEN
-========================================================================== */
-
-@media screen and (max-width: 991px) {
-  .nav--brand,
-  .navbar.is--menu-open .nav--brand {
-    position: relative;
-    display: flex !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
-
-  .nav--brand img,
-  .navbar.is--menu-open .nav--brand img {
-    display: block;
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
-
-  .nav--right {
-    position: relative;
-    z-index: 1003;
-  }
-
-  .nav--menu {
-    z-index: 1001;
-  }
-}
-
-.nav--brand {
-  position: relative;
-  z-index: 1009 ;
-}
