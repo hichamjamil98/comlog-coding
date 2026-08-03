@@ -1,5 +1,5 @@
-/* ========================================================================== 
-   COMLOG — INTERACTIONS & ANIMATIONS
+/* ==========================================================================
+   COMLOG — INTERACTIONS
    Requires GSAP + ScrollTrigger
 ========================================================================== */
 
@@ -16,99 +16,59 @@
       gsap.registerPlugin(ScrollTrigger);
     }
 
-    const EASE = "power4.out";
-    const MOBILE_BREAKPOINT = window.matchMedia("(max-width: 991px)");
+    const mobileQuery = window.matchMedia("(max-width: 991px)");
+    const ease = "power4.out";
 
-    neutralizeLegacyNavbar(MOBILE_BREAKPOINT);
-    initButtonHover();
-    initLoadAnimations(EASE);
-    initScrollAnimations(EASE);
-    initImageParallax();
-    initDropdowns(MOBILE_BREAKPOINT);
-    initMobileNavbar(MOBILE_BREAKPOINT, EASE);
+    resetNavigationState(mobileQuery);
+    initButtonCharacters();
+    initLoadAnimations(ease);
+    initScrollAnimations(ease);
+    initParallax();
+    initDropdowns(mobileQuery);
+    initMobileMenu(mobileQuery);
   });
 
+  /* =========================================================================
+     NAVIGATION RESET
+  ========================================================================= */
 
-  /* ========================================================================
-     0. LEGACY NAVBAR CLEANUP
-
-     Removes effects left by the previous B4Cars script:
-     - .is--scrolled
-     - inline navbar background-color
-     - desktop nav menu hidden through inline GSAP styles
-  ======================================================================== */
-
-  function neutralizeLegacyNavbar(breakpoint) {
+  function resetNavigationState(mobileQuery) {
     const navbar = document.querySelector(".navbar");
     const menu = document.querySelector(".nav--menu");
 
+    document.documentElement.classList.remove("is--locked");
+    document.body.classList.remove("is--locked");
+
     if (!navbar || !menu) return;
 
-    const restoreNavbarBackground = () => {
-      navbar.classList.remove("is--scrolled");
-      navbar.style.setProperty("background-color", "#ffffff", "important");
-    };
+    navbar.classList.remove("is--scrolled", "is--menu-open");
+    navbar.style.removeProperty("background-color");
 
-    const restoreDesktopMenu = () => {
-      if (breakpoint.matches) return;
-
+    if (!mobileQuery.matches) {
       menu.classList.remove("is--open");
-      menu.style.removeProperty("display");
-      menu.style.removeProperty("opacity");
-      menu.style.removeProperty("pointer-events");
-      menu.style.removeProperty("height");
-      menu.style.removeProperty("transform");
-      menu.style.removeProperty("filter");
+      gsap.set(menu, { clearProps: "all" });
 
-      menu.querySelectorAll(":scope > *").forEach((item) => {
-        item.style.removeProperty("opacity");
-        item.style.removeProperty("transform");
-        item.style.removeProperty("translate");
-        item.style.removeProperty("rotate");
-        item.style.removeProperty("scale");
-        item.style.removeProperty("filter");
+      menu.querySelectorAll(".btn--drop").forEach((dropdown) => {
+        dropdown.classList.remove("is--open");
       });
-    };
 
-    const repair = () => {
-      restoreNavbarBackground();
-      restoreDesktopMenu();
-    };
-
-    repair();
-
-    /*
-      Runs after older scroll listeners and removes the legacy inline color.
-      This does not apply a new color: Webflow keeps full control.
-    */
-    window.addEventListener(
-      "scroll",
-      () => requestAnimationFrame(restoreNavbarBackground),
-      { passive: true },
-    );
-
-    breakpoint.addEventListener("change", repair);
-
-    const observer = new MutationObserver(() => {
-      requestAnimationFrame(repair);
-    });
-
-    observer.observe(navbar, {
-      attributes: true,
-      attributeFilter: ["class", "style"],
-    });
+      menu.querySelectorAll(".drop--menu").forEach((dropMenu) => {
+        gsap.set(dropMenu, { clearProps: "all" });
+        dropMenu.setAttribute("aria-hidden", "true");
+      });
+    }
   }
 
-  /* ========================================================================
-     1. BUTTON HOVER
-     Uses .btn-animate-chars__text and .btn--arrow
-  ======================================================================== */
+  /* =========================================================================
+     BUTTON CHARACTER HOVER
+  ========================================================================= */
 
-  function initButtonHover() {
-    const textElements = document.querySelectorAll(".btn-animate-chars__text, [data-button-animate-chars]");
-    const delayStep = 0.012;
+  function initButtonCharacters() {
+    const elements = document.querySelectorAll(
+      ".btn-animate-chars__text, [data-button-animate-chars]",
+    );
 
-    textElements.forEach((element) => {
+    elements.forEach((element) => {
       if (element.dataset.charsReady === "true") return;
 
       const text = element.textContent || "";
@@ -119,7 +79,7 @@
         const span = document.createElement("span");
         span.setAttribute("aria-hidden", "true");
         span.textContent = character === " " ? "\u00A0" : character;
-        span.style.transitionDelay = `${index * delayStep}s`;
+        span.style.transitionDelay = `${index * 0.012}s`;
         element.appendChild(span);
       });
 
@@ -127,23 +87,11 @@
     });
   }
 
-  /* ========================================================================
-     2. PAGE LOAD ANIMATIONS
-
-     animation="load"
-     animation="load-up"
-     animation="load-left"
-     animation="load-right"
-     animation="load-stagger"
-     animation="load-split"
-  ======================================================================== */
+  /* =========================================================================
+     LOAD ANIMATIONS
+  ========================================================================= */
 
   function initLoadAnimations(ease) {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      gsap.set('[animation^="load"]', { clearProps: "all" });
-      return;
-    }
-
     const timeline = gsap.timeline({
       defaults: { ease },
       delay: 0.08,
@@ -224,31 +172,62 @@
     );
   }
 
-  /* ========================================================================
-     3. SCROLL ANIMATIONS
-
-     animation="fade"
-     animation="fade-up"
-     animation="fade-left"
-     animation="fade-right"
-     animation="fade-stagger"
-     animation="fade-split"
-  ======================================================================== */
+  /* =========================================================================
+     SCROLL ANIMATIONS
+  ========================================================================= */
 
   function initScrollAnimations(ease) {
     if (typeof ScrollTrigger === "undefined") return;
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      gsap.set('[animation^="fade"]', { clearProps: "all" });
-      return;
-    }
 
     initFade('[animation="fade"]', { opacity: 0, y: "1rem" }, ease);
     initFade('[animation="fade-up"]', { opacity: 0, y: "2rem" }, ease);
     initFade('[animation="fade-left"]', { opacity: 0, x: "2rem" }, ease);
     initFade('[animation="fade-right"]', { opacity: 0, x: "-2rem" }, ease);
-    initFadeStagger(ease);
-    initFadeSplit(ease);
+
+    document.querySelectorAll('[animation="fade-stagger"]').forEach((parent) => {
+      const children = [...parent.children];
+      if (!children.length) return;
+
+      gsap.fromTo(
+        children,
+        { opacity: 0, y: "1.5rem" },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.78,
+          stagger: 0.08,
+          ease,
+          clearProps: "transform,opacity",
+          scrollTrigger: {
+            trigger: parent,
+            start: "top 86%",
+            once: true,
+          },
+        },
+      );
+    });
+
+    document.querySelectorAll('[animation="fade-split"]').forEach((element) => {
+      const line = prepareSplitLine(element, "fade-split");
+      if (!line) return;
+
+      gsap.fromTo(
+        line,
+        { yPercent: 110, opacity: 0 },
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 0.9,
+          ease,
+          clearProps: "transform,opacity",
+          scrollTrigger: {
+            trigger: element,
+            start: "top 86%",
+            once: true,
+          },
+        },
+      );
+    });
   }
 
   function initFade(selector, fromVars, ease) {
@@ -273,59 +252,10 @@
     });
   }
 
-  function initFadeStagger(ease) {
-    document.querySelectorAll('[animation="fade-stagger"]').forEach((parent) => {
-      const children = [...parent.children];
-      if (!children.length) return;
-
-      gsap.fromTo(
-        children,
-        { opacity: 0, y: "1.5rem" },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.78,
-          stagger: 0.08,
-          ease,
-          clearProps: "transform,opacity",
-          scrollTrigger: {
-            trigger: parent,
-            start: "top 86%",
-            once: true,
-          },
-        },
-      );
-    });
-  }
-
-  function initFadeSplit(ease) {
-    document.querySelectorAll('[animation="fade-split"]').forEach((element) => {
-      const line = prepareSplitLine(element, "fade-split");
-      if (!line) return;
-
-      gsap.fromTo(
-        line,
-        { yPercent: 110, opacity: 0 },
-        {
-          yPercent: 0,
-          opacity: 1,
-          duration: 0.9,
-          ease,
-          clearProps: "transform,opacity",
-          scrollTrigger: {
-            trigger: element,
-            start: "top 86%",
-            once: true,
-          },
-        },
-      );
-    });
-  }
-
   function prepareSplitLine(element, prefix) {
-    const readyAttribute = `${prefix.replace(/-/g, "")}Ready`;
+    const readyKey = `${prefix.replace(/-/g, "")}Ready`;
 
-    if (element.dataset[readyAttribute] === "true") {
+    if (element.dataset[readyKey] === "true") {
       return element.querySelector(`.${prefix}__line`);
     }
 
@@ -338,24 +268,19 @@
       </span>
     `;
 
-    element.dataset[readyAttribute] = "true";
+    element.dataset[readyKey] = "true";
     return element.querySelector(`.${prefix}__line`);
   }
 
-  /* ========================================================================
-     4. IMAGE PARALLAX
-     Add image="parallax" directly to the image.
-  ======================================================================== */
+  /* =========================================================================
+     PARALLAX
+  ========================================================================= */
 
-  function initImageParallax() {
+  function initParallax() {
     if (typeof ScrollTrigger === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     document.querySelectorAll('[image="parallax"]').forEach((image) => {
-      if (image.dataset.parallaxReady === "true") return;
-
-      image.dataset.parallaxReady = "true";
-
       gsap.fromTo(
         image,
         { yPercent: -8 },
@@ -374,266 +299,122 @@
     });
   }
 
-  /* ========================================================================
-     5. NAVBAR DROPDOWNS
+  /* =========================================================================
+     DROPDOWNS
+  ========================================================================= */
 
-     Required structure:
-     .btn--drop
-       .trigger
-         .button.is--drop
-           .drop--arrow
-       .drop--menu
-
-     Desktop:
-     - opens on hover and keyboard focus
-     - also opens/closes on trigger click
-
-     Tablet/mobile:
-     - accordion behavior on trigger click
-     - only one dropdown stays open
-  ======================================================================== */
-
-  function initDropdowns(breakpoint) {
+  function initDropdowns(mobileQuery) {
     const dropdowns = [...document.querySelectorAll(".btn--drop")];
-    if (!dropdowns.length) return;
 
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    );
-
-    function getParts(dropdown) {
-      const trigger = dropdown.querySelector(":scope > .trigger");
-      const triggerButton =
-        trigger?.querySelector(".button.is--drop") ||
-        trigger?.querySelector("a, button");
+    const closeDropdown = (dropdown, immediate = false) => {
+      const trigger = dropdown.querySelector(":scope > .trigger a, :scope > .trigger button");
       const menu = dropdown.querySelector(":scope > .drop--menu");
-      const arrow = trigger?.querySelector(".drop--arrow");
+      const arrow = dropdown.querySelector(":scope > .trigger .drop--arrow");
 
-      return { trigger, triggerButton, menu, arrow };
-    }
-
-    function setAccessibility(dropdown) {
-      const { trigger, triggerButton, menu } = getParts(dropdown);
-      if (!trigger || !triggerButton || !menu) return;
-
-      if (!menu.id) {
-        menu.id = `comlog-dropdown-${Math.random()
-          .toString(36)
-          .slice(2, 9)}`;
-      }
-
-      triggerButton.setAttribute("aria-haspopup", "true");
-      triggerButton.setAttribute("aria-expanded", "false");
-      triggerButton.setAttribute("aria-controls", menu.id);
-      menu.setAttribute("aria-hidden", "true");
-    }
-
-    function setClosedStyles(dropdown) {
-      const { menu, arrow } = getParts(dropdown);
       if (!menu) return;
 
       dropdown.classList.remove("is--open");
-
-      if (breakpoint.matches) {
-        gsap.set(menu, {
-          display: "none",
-          height: 0,
-          overflow: "hidden",
-          pointerEvents: "none",
-        });
-      } else {
-        gsap.set(menu, {
-          clearProps: "display,height,overflow,opacity,transform",
-          pointerEvents: "none",
-        });
-      }
-
-      if (arrow) {
-        gsap.set(arrow, { rotate: 0 });
-      }
-    }
-
-    function closeDropdown(dropdown, { immediate = false } = {}) {
-      const { triggerButton, menu, arrow } = getParts(dropdown);
-      if (!menu) return;
-
-      dropdown.classList.remove("is--open");
-      triggerButton?.setAttribute("aria-expanded", "false");
+      trigger?.setAttribute("aria-expanded", "false");
       menu.setAttribute("aria-hidden", "true");
 
       gsap.killTweensOf([menu, arrow].filter(Boolean));
 
-      if (immediate || reducedMotion.matches) {
-        setClosedStyles(dropdown);
+      if (!mobileQuery.matches || immediate) {
+        gsap.set(menu, { clearProps: "all" });
+        if (arrow) gsap.set(arrow, { clearProps: "transform" });
         return;
       }
 
       if (arrow) {
         gsap.to(arrow, {
           rotate: 0,
-          duration: 0.3,
+          duration: 0.25,
           ease: "power2.out",
         });
       }
 
-      if (breakpoint.matches) {
-        gsap.to(menu, {
-          height: 0,
-          duration: 0.35,
-          ease: "power2.inOut",
-          onComplete: () => {
-            gsap.set(menu, {
-              display: "none",
-              clearProps: "height,overflow,opacity,transform",
-              pointerEvents: "none",
-            });
-          },
-        });
-      } else {
-        gsap.to(menu, {
-          opacity: 0,
-          duration: 0.24,
-          ease: "power2.in",
-          onComplete: () => {
-            gsap.set(menu, {
-              display: "none",
-              clearProps: "height,overflow,opacity,transform",
-              pointerEvents: "none",
-            });
-          },
-        });
-      }
-    }
-
-    function closeOtherDropdowns(currentDropdown) {
-      dropdowns.forEach((dropdown) => {
-        if (
-          dropdown !== currentDropdown &&
-          dropdown.classList.contains("is--open")
-        ) {
-          closeDropdown(dropdown);
-        }
+      gsap.to(menu, {
+        height: 0,
+        duration: 0.3,
+        ease: "power2.inOut",
+        onComplete: () => {
+          gsap.set(menu, {
+            display: "none",
+            clearProps: "height,overflow",
+          });
+        },
       });
-    }
+    };
 
-    function openDropdown(dropdown) {
-      const { triggerButton, menu, arrow } = getParts(dropdown);
-      if (!menu || dropdown.classList.contains("is--open")) return;
+    const openDropdown = (dropdown) => {
+      const trigger = dropdown.querySelector(":scope > .trigger a, :scope > .trigger button");
+      const menu = dropdown.querySelector(":scope > .drop--menu");
+      const arrow = dropdown.querySelector(":scope > .trigger .drop--arrow");
 
-      closeOtherDropdowns(dropdown);
+      if (!menu) return;
+
+      dropdowns.forEach((item) => {
+        if (item !== dropdown) closeDropdown(item, true);
+      });
 
       dropdown.classList.add("is--open");
-      triggerButton?.setAttribute("aria-expanded", "true");
+      trigger?.setAttribute("aria-expanded", "true");
       menu.setAttribute("aria-hidden", "false");
 
-      gsap.killTweensOf([menu, arrow].filter(Boolean));
+      if (!mobileQuery.matches) return;
 
+      gsap.killTweensOf([menu, arrow].filter(Boolean));
       gsap.set(menu, {
         display: "flex",
-        pointerEvents: "auto",
+        height: 0,
+        overflow: "hidden",
       });
 
       if (arrow) {
         gsap.to(arrow, {
           rotate: 180,
-          duration: 0.35,
+          duration: 0.3,
           ease: "power2.out",
         });
       }
 
-      if (reducedMotion.matches) {
-        gsap.set(menu, {
-          opacity: 1,
-          height: "auto",
-        });
-        return;
-      }
+      gsap.to(menu, {
+        height: "auto",
+        duration: 0.35,
+        ease: "power2.out",
+        onComplete: () => {
+          gsap.set(menu, { clearProps: "height,overflow" });
+        },
+      });
+    };
 
-      if (breakpoint.matches) {
-        gsap.fromTo(
-          menu,
-          {
-            height: 0,
-          },
-          {
-            height: "auto",
-            duration: 0.42,
-            ease: "power2.out",
-          },
-        );
-      } else {
-        gsap.fromTo(
-          menu,
-          {
-            opacity: 0,
-          },
-          {
-            opacity: 1,
-            duration: 0.3,
-            ease: "power2.out",
-          },
-        );
-      }
-    }
+    dropdowns.forEach((dropdown, index) => {
+      const trigger = dropdown.querySelector(":scope > .trigger a, :scope > .trigger button");
+      const menu = dropdown.querySelector(":scope > .drop--menu");
 
-    function toggleDropdown(dropdown) {
-      dropdown.classList.contains("is--open")
-        ? closeDropdown(dropdown)
-        : openDropdown(dropdown);
-    }
+      if (!trigger || !menu) return;
 
-    dropdowns.forEach((dropdown) => {
-      const { trigger, triggerButton, menu } = getParts(dropdown);
-      if (!trigger || !triggerButton || !menu) return;
+      if (!menu.id) menu.id = `comlog-dropdown-${index + 1}`;
 
-      setAccessibility(dropdown);
-      setClosedStyles(dropdown);
+      trigger.setAttribute("aria-haspopup", "true");
+      trigger.setAttribute("aria-expanded", "false");
+      trigger.setAttribute("aria-controls", menu.id);
+      menu.setAttribute("aria-hidden", "true");
 
-      triggerButton.addEventListener("click", (event) => {
+      trigger.addEventListener("click", (event) => {
+        if (!mobileQuery.matches) return;
+
         event.preventDefault();
-        event.stopPropagation();
-        toggleDropdown(dropdown);
-      });
 
-      triggerButton.addEventListener("keydown", (event) => {
-        if (
-          event.key === "Enter" ||
-          event.key === " " ||
-          event.key === "ArrowDown"
-        ) {
-          event.preventDefault();
-          openDropdown(dropdown);
-
-          const firstLink = menu.querySelector("a, button");
-          firstLink?.focus();
-        }
-      });
-
-      dropdown.addEventListener("focusin", () => {
-        if (!breakpoint.matches) {
-          openDropdown(dropdown);
-        }
-      });
-
-      dropdown.addEventListener("focusout", (event) => {
-        if (
-          !breakpoint.matches &&
-          !dropdown.contains(event.relatedTarget)
-        ) {
-          closeDropdown(dropdown);
-        }
-      });
-
-      menu.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", () => {
-          if (breakpoint.matches) {
-            closeDropdown(dropdown, { immediate: true });
-          }
-        });
+        dropdown.classList.contains("is--open")
+          ? closeDropdown(dropdown)
+          : openDropdown(dropdown);
       });
     });
 
     document.addEventListener("click", (event) => {
+      if (!mobileQuery.matches) return;
+
       dropdowns.forEach((dropdown) => {
         if (!dropdown.contains(event.target)) {
           closeDropdown(dropdown);
@@ -641,224 +422,171 @@
       });
     });
 
-    document.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape") return;
-
-      dropdowns.forEach((dropdown) => {
-        if (dropdown.classList.contains("is--open")) {
-          const { triggerButton } = getParts(dropdown);
-          closeDropdown(dropdown);
-          triggerButton?.focus();
-        }
-      });
-    });
-
-    breakpoint.addEventListener("change", () => {
-      dropdowns.forEach((dropdown) => {
-        closeDropdown(dropdown, { immediate: true });
-      });
+    mobileQuery.addEventListener("change", () => {
+      dropdowns.forEach((dropdown) => closeDropdown(dropdown, true));
     });
   }
 
-  /* ========================================================================
-     6. TABLET / MOBILE NAVBAR
+  /* =========================================================================
+     TABLET / MOBILE MENU
+  ========================================================================= */
 
-     .navbar
-     .nav--menu
-     .menu--trigger
-     .menu--to-open
-     .menu--to-close
-  ======================================================================== */
-
-  function initMobileNavbar(breakpoint, ease) {
+  function initMobileMenu(mobileQuery) {
     const navbar = document.querySelector(".navbar");
     const menu = document.querySelector(".nav--menu");
     const trigger = document.querySelector(".menu--trigger");
-    const iconOpen = trigger?.querySelector(".menu--to-open");
-    const iconClose = trigger?.querySelector(".menu--to-close");
+    const openIcon = trigger?.querySelector(".menu--to-open");
+    const closeIcon = trigger?.querySelector(".menu--to-close");
 
     if (!navbar || !menu || !trigger) return;
 
-    const menuItems = [...menu.children];
-    let isOpen = false;
+    let open = false;
     let timeline = null;
 
     trigger.setAttribute("role", "button");
     trigger.setAttribute("tabindex", "0");
     trigger.setAttribute("aria-expanded", "false");
-    trigger.setAttribute("aria-label", "Ouvrir le menu");
 
-    function lockScroll() {
+    const lock = () => {
       document.documentElement.classList.add("is--locked");
       document.body.classList.add("is--locked");
-    }
+    };
 
-    function unlockScroll() {
+    const unlock = () => {
       document.documentElement.classList.remove("is--locked");
       document.body.classList.remove("is--locked");
-    }
+    };
 
-    function setClosedState() {
-      gsap.set(menu, {
-        display: "none",
-        opacity: 0,
-        pointerEvents: "none",
-      });
-
-      gsap.set(menuItems, {
-        opacity: 0,
-        y: "1.5rem",
-        filter: "blur(6px)",
-      });
-
-      if (iconOpen) gsap.set(iconOpen, { opacity: 1, scale: 1, rotate: 0 });
-      if (iconClose) gsap.set(iconClose, { opacity: 0, scale: 0.75, rotate: -90 });
-    }
-
-    function openMenu() {
-      if (isOpen || !breakpoint.matches) return;
-      isOpen = true;
-
+    const closeMenu = (immediate = false) => {
+      open = false;
       timeline?.kill();
-      navbar.classList.add("is--menu-open");
-      menu.classList.add("is--open");
-      trigger.classList.add("is--open");
-      trigger.setAttribute("aria-expanded", "true");
-      trigger.setAttribute("aria-label", "Fermer le menu");
-      lockScroll();
 
-      timeline = gsap.timeline();
-
-      timeline
-        .set(menu, { display: "flex", pointerEvents: "auto" })
-        .to(menu, { opacity: 1, duration: 0.45, ease: "power2.out" }, 0)
-        .to(
-          menuItems,
-          {
-            opacity: 1,
-            y: 0,
-            filter: "blur(0px)",
-            duration: 0.62,
-            stagger: 0.055,
-            ease,
-          },
-          0.16,
-        );
-
-      if (iconOpen) {
-        timeline.to(iconOpen, {
-          opacity: 0,
-          scale: 0.75,
-          rotate: 90,
-          duration: 0.3,
-          ease,
-        }, 0);
-      }
-
-      if (iconClose) {
-        timeline.to(iconClose, {
-          opacity: 1,
-          scale: 1,
-          rotate: 0,
-          duration: 0.4,
-          ease,
-        }, 0.06);
-      }
-    }
-
-    function closeMenu({ immediate = false } = {}) {
-      if (!isOpen && !immediate) return;
-      isOpen = false;
-
-      timeline?.kill();
+      trigger.classList.remove("is--open");
       trigger.setAttribute("aria-expanded", "false");
-      trigger.setAttribute("aria-label", "Ouvrir le menu");
-      unlockScroll();
+      navbar.classList.remove("is--menu-open");
+      unlock();
 
-      if (immediate) {
-        navbar.classList.remove("is--menu-open");
+      document.querySelectorAll(".btn--drop.is--open").forEach((dropdown) => {
+        dropdown.classList.remove("is--open");
+      });
+
+      if (immediate || !mobileQuery.matches) {
         menu.classList.remove("is--open");
-        trigger.classList.remove("is--open");
-        setClosedState();
+        gsap.set(menu, { clearProps: "all" });
+        gsap.set([openIcon, closeIcon].filter(Boolean), { clearProps: "all" });
         return;
       }
 
       timeline = gsap.timeline({
         onComplete: () => {
-          navbar.classList.remove("is--menu-open");
           menu.classList.remove("is--open");
-          trigger.classList.remove("is--open");
+          gsap.set(menu, { display: "none", clearProps: "opacity" });
         },
       });
 
-      timeline
-        .to(
-          menuItems,
-          {
-            opacity: 0,
-            y: "1rem",
-            filter: "blur(6px)",
-            duration: 0.28,
-            stagger: { each: 0.025, from: "end" },
-            ease: "power2.inOut",
-          },
-          0,
-        )
-        .to(menu, { opacity: 0, duration: 0.42, ease: "power2.inOut" }, 0.1)
-        .set(menu, { display: "none", pointerEvents: "none" });
+      timeline.to(menu, {
+        opacity: 0,
+        duration: 0.3,
+        ease: "power2.inOut",
+      });
 
-      if (iconClose) {
-        timeline.to(iconClose, {
-          opacity: 0,
-          scale: 0.75,
-          rotate: -90,
+      if (openIcon) {
+        timeline.to(openIcon, {
+          opacity: 1,
+          rotate: 0,
+          scale: 1,
           duration: 0.3,
-          ease,
         }, 0);
       }
 
-      if (iconOpen) {
-        timeline.to(iconOpen, {
-          opacity: 1,
-          scale: 1,
-          rotate: 0,
-          duration: 0.4,
-          ease,
-        }, 0.05);
+      if (closeIcon) {
+        timeline.to(closeIcon, {
+          opacity: 0,
+          rotate: -90,
+          scale: 0.75,
+          duration: 0.25,
+        }, 0);
       }
-    }
+    };
 
-    function toggleMenu() {
-      isOpen ? closeMenu() : openMenu();
-    }
+    const openMenu = () => {
+      if (!mobileQuery.matches || open) return;
+
+      open = true;
+      timeline?.kill();
+
+      trigger.classList.add("is--open");
+      trigger.setAttribute("aria-expanded", "true");
+      navbar.classList.add("is--menu-open");
+      menu.classList.add("is--open");
+      lock();
+
+      timeline = gsap.timeline();
+
+      timeline
+        .set(menu, {
+          display: "flex",
+          pointerEvents: "auto",
+        })
+        .fromTo(
+          menu,
+          { opacity: 0 },
+          {
+            opacity: 1,
+            duration: 0.35,
+            ease: "power2.out",
+          },
+        );
+
+      if (openIcon) {
+        timeline.to(openIcon, {
+          opacity: 0,
+          rotate: 90,
+          scale: 0.75,
+          duration: 0.25,
+        }, 0);
+      }
+
+      if (closeIcon) {
+        timeline.to(closeIcon, {
+          opacity: 1,
+          rotate: 0,
+          scale: 1,
+          duration: 0.3,
+        }, 0);
+      }
+    };
+
+    const toggle = () => {
+      open ? closeMenu() : openMenu();
+    };
 
     trigger.addEventListener("click", (event) => {
       event.preventDefault();
-      toggleMenu();
+      toggle();
     });
 
     trigger.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        toggleMenu();
+        toggle();
       }
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && isOpen) closeMenu();
+      if (event.key === "Escape" && open) closeMenu();
     });
 
-    breakpoint.addEventListener("change", (event) => {
-      if (!event.matches) {
-        closeMenu({ immediate: true });
-        gsap.set(menu, { clearProps: "all" });
-        gsap.set(menuItems, { clearProps: "all" });
-        gsap.set([iconOpen, iconClose].filter(Boolean), { clearProps: "all" });
-      } else {
-        closeMenu({ immediate: true });
-      }
+    menu.querySelectorAll("a:not(.button.is--drop)").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (mobileQuery.matches) closeMenu();
+      });
     });
 
-    if (breakpoint.matches) setClosedState();
+    mobileQuery.addEventListener("change", (event) => {
+      if (!event.matches) closeMenu(true);
+    });
+
+    if (!mobileQuery.matches) closeMenu(true);
   }
 })();

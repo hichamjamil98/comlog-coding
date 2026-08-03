@@ -1,5 +1,5 @@
-/* ========================================================================== 
-   COMLOG — INTERACTIONS & ANIMATIONS
+/* ==========================================================================
+   COMLOG — INTERACTIONS
 ========================================================================== */
 
 body {
@@ -12,27 +12,37 @@ body.is--locked {
   overscroll-behavior: none;
 }
 
-/* ========================================================================== 
+/* ==========================================================================
+   NAVBAR
+========================================================================== */
+
+.navbar,
+.navbar.is--scrolled,
+.navbar.is--menu-open {
+  background-color: #ffffff !important;
+}
+
+/* ==========================================================================
    BUTTON HOVER
 ========================================================================== */
 
 .btn-animate-chars__text,
 [data-button-animate-chars] {
-  display: inline-flex;
-  align-items: center;
-  height: 1em;
-  line-height: 1;
+  display: inline-block;
+  height: 1.05em;
+  line-height: 1.05;
   overflow: hidden;
   vertical-align: middle;
+  clip-path: inset(0 0 0.04em 0);
 }
 
 .btn-animate-chars__text span,
 [data-button-animate-chars] span {
   position: relative;
   display: inline-block;
+  line-height: 1.05;
   transform: translateY(0);
-  line-height: 1;
-  text-shadow: 0 1em currentColor;
+  text-shadow: 0 1.05em currentColor;
   transition: transform 0.55s cubic-bezier(0.625, 0.05, 0, 1);
   will-change: transform;
 }
@@ -48,30 +58,25 @@ body.is--locked {
 }
 
 .drop--arrow {
-  transition: transform 0.35s cubic-bezier(0.625, 0.05, 0, 1);
+  transition: transform 0.3s cubic-bezier(0.625, 0.05, 0, 1);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .button:hover .btn-animate-chars__text span,
   .button:hover [data-button-animate-chars] span,
   .btn:hover .btn-animate-chars__text span,
-  .btn:hover [data-button-animate-chars] span,
-  .nav--menu a:hover .btn-animate-chars__text span,
-  .nav--menu a:hover [data-button-animate-chars] span,
-  .btn--drop > .trigger:hover .btn-animate-chars__text span,
-  .btn--drop > .trigger:hover [data-button-animate-chars] span {
-    transform: translateY(-1em);
+  .btn:hover [data-button-animate-chars] span {
+    transform: translateY(-1.05em);
   }
 
   .button:hover .btn--arrow,
-  .btn:hover .btn--arrow,
-  .nav--menu a:hover .btn--arrow {
+  .btn:hover .btn--arrow {
     transform: translateX(0.2rem);
   }
 }
 
-/* ========================================================================== 
-   LOAD / SCROLL ANIMATIONS
+/* ==========================================================================
+   LOAD / SCROLL
 ========================================================================== */
 
 [animation="load"],
@@ -89,12 +94,6 @@ body.is--locked {
   will-change: transform, opacity;
 }
 
-[animation="load-split"],
-[animation="fade-split"] {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
 .load-split__line-mask,
 .fade-split__line-mask {
   display: block;
@@ -107,8 +106,8 @@ body.is--locked {
   will-change: transform, opacity;
 }
 
-/* ========================================================================== 
-   IMAGE PARALLAX
+/* ==========================================================================
+   PARALLAX
 ========================================================================== */
 
 [image="parallax"] {
@@ -120,36 +119,43 @@ body.is--locked {
   will-change: transform;
 }
 
-/* ========================================================================== 
-   NAVBAR CONTROLS
+/* ==========================================================================
+   DROPDOWNS — DESKTOP
 ========================================================================== */
 
-/*
-  Navbar always stays white, including while scrolling.
-*/
-.navbar,
-.navbar.is--scrolled,
-.navbar.is--menu-open {
-  background-color: #ffffff !important;
+.btn--drop {
+  position: relative;
+}
+
+.drop--menu {
+  display: none;
+  flex-direction: column;
 }
 
 @media screen and (min-width: 992px) {
-
-  .nav--menu {
-    display: flex !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    transform: none !important;
-    filter: none !important;
+  .btn--drop > .drop--menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1003;
+    width: max-content;
+    min-width: 100%;
   }
 
-  .nav--menu > * {
-    opacity: 1 !important;
-    transform: none !important;
-    filter: none !important;
+  .btn--drop:hover > .drop--menu,
+  .btn--drop:focus-within > .drop--menu {
+    display: flex;
+  }
+
+  .btn--drop:hover .drop--arrow,
+  .btn--drop:focus-within .drop--arrow {
+    transform: rotate(180deg);
   }
 }
 
+/* ==========================================================================
+   TABLET / MOBILE
+========================================================================== */
 
 .menu--trigger {
   position: relative;
@@ -158,17 +164,11 @@ body.is--locked {
   -webkit-tap-highlight-color: transparent;
 }
 
-.menu--trigger:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 0.3rem;
-}
-
 .menu--to-open,
 .menu--to-close {
   display: block;
   width: 100%;
   height: auto;
-  color: currentColor;
   transform-origin: center;
   will-change: transform, opacity;
 }
@@ -180,79 +180,6 @@ body.is--locked {
   transform: scale(0.75) rotate(-90deg);
   pointer-events: none;
 }
-
-/* ========================================================================== 
-   DROPDOWNS
-========================================================================== */
-
-.btn--drop {
-  position: relative;
-}
-
-.btn--drop > .trigger {
-  position: relative;
-  z-index: 2;
-}
-
-.btn--drop .button.is--drop {
-  cursor: pointer;
-}
-
-.drop--arrow {
-  flex: none;
-  transform: rotate(0deg);
-  transform-origin: center;
-}
-
-.drop--menu {
-  display: none;
-  flex-direction: column;
-  opacity: 0;
-  pointer-events: none;
-  visibility: hidden;
-  will-change: transform, opacity, height;
-}
-
-.btn--drop.is--open > .drop--menu {
-  visibility: visible;
-  pointer-events: auto;
-}
-
-.btn--drop.is--open .drop--arrow {
-  transform: rotate(180deg);
-}
-
-
-@media screen and (min-width: 992px) and (hover: hover) {
-  .btn--drop:hover > .drop--menu,
-  .btn--drop:focus-within > .drop--menu,
-  .btn--drop.is--open > .drop--menu {
-    display: flex !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    transform: translateY(0) !important;
-  }
-
-  .btn--drop:hover .drop--arrow,
-  .btn--drop:focus-within .drop--arrow,
-  .btn--drop.is--open .drop--arrow {
-    transform: rotate(180deg) !important;
-  }
-}
-
-@media screen and (min-width: 992px) {
-  .btn--drop > .drop--menu {
-    position: static;
-    width: auto;
-    min-width: 0;
-    overflow: hidden;
-  }
-}
-
-/* ========================================================================== 
-   TABLET / MOBILE NAVBAR
-========================================================================== */
 
 @media screen and (max-width: 991px) {
   .navbar {
@@ -267,8 +194,8 @@ body.is--locked {
   }
 
   /*
-    Webflow keeps control of padding, alignment, visibility helpers,
-    .is--menu--tablet, .button--hide--mobile and dropdown layout.
+    Padding, alignment, gaps, visibility helpers and internal layout
+    remain controlled by Webflow.
   */
   .nav--menu {
     position: fixed;
@@ -287,40 +214,22 @@ body.is--locked {
     pointer-events: auto;
   }
 
-
-  .btn--drop .trigger,
-  .btn--drop .button.is--drop {
-    width: 100%;
+  .btn--drop > .drop--menu {
+    position: static;
+    width: auto;
+    min-width: 0;
   }
 
-  .drop--menu {
-    position: relative;
-    width: 100%;
-    height: 0;
-    overflow: hidden;
-    flex-direction: column;
+  .btn--drop.is--open > .drop--menu {
+    display: flex;
   }
 
-  .drop--menu .button {
-    width: 100%;
+  .btn--drop.is--open .drop--arrow {
+    transform: rotate(180deg);
   }
 }
 
-/* Restore desktop navigation. */
-@media screen and (min-width: 992px) {
-  .nav--menu {
-    opacity: 1 !important;
-    pointer-events: auto !important;
-  }
-
-  .nav--menu > * {
-    opacity: 1 !important;
-    transform: none !important;
-    filter: none !important;
-  }
-}
-
-/* ========================================================================== 
+/* ==========================================================================
    REDUCED MOTION
 ========================================================================== */
 
@@ -338,13 +247,4 @@ body.is--locked {
     height: 100%;
     transform: none !important;
   }
-}
-
-
-/* Extra clipping safety for animated button text */
-.button .btn-animate-chars__text,
-.button [data-button-animate-chars],
-.btn .btn-animate-chars__text,
-.btn [data-button-animate-chars] {
-  clip-path: inset(0 0 0 0);
 }
