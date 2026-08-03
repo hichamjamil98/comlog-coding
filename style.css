@@ -1,135 +1,286 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-:root {
-  --color-bg: #0f1419;
-  --color-surface: #1a2332;
-  --color-border: #2d3a4f;
-  --color-text: #e7ecf3;
-  --color-text-muted: #8b9cb3;
-  --color-accent: #3b82f6;
-  --color-accent-hover: #2563eb;
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "SF Mono", "Fira Code", "Cascadia Code", monospace;
-  --radius: 8px;
-  --shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
-  --transition: 150ms ease;
-}
-
-html {
-  font-size: 16px;
-  -webkit-font-smoothing: antialiased;
-}
+/* ========================================================================== 
+   COMLOG — INTERACTIONS & ANIMATIONS
+========================================================================== */
 
 body {
-  min-height: 100vh;
-  font-family: var(--font-sans);
-  line-height: 1.6;
-  color: var(--color-text);
-  background-color: var(--color-bg);
+  overflow-x: hidden;
 }
 
-a {
-  color: var(--color-accent);
-  text-decoration: none;
-  transition: color var(--transition);
+html.is--locked,
+body.is--locked {
+  overflow: hidden !important;
+  overscroll-behavior: none;
 }
 
-a:hover {
-  color: var(--color-accent-hover);
-}
+/* ========================================================================== 
+   BUTTON HOVER
+========================================================================== */
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
-  color: inherit;
-}
-
-button {
-  cursor: pointer;
-  border: none;
-  background: none;
-}
-
-.container {
-  width: min(100% - 2rem, 960px);
-  margin-inline: auto;
-}
-
-.card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 1.5rem;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: var(--radius);
-  background: var(--color-accent);
-  color: #fff;
-  font-weight: 500;
-  transition: background var(--transition);
-}
-
-.btn:hover {
-  background: var(--color-accent-hover);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-input,
-textarea {
-  width: 100%;
-  padding: 0.625rem 0.875rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-bg);
-  transition: border-color var(--transition);
-}
-
-input:focus,
-textarea:focus {
-  outline: none;
-  border-color: var(--color-accent);
-}
-
-code,
-pre {
-  font-family: var(--font-mono);
-}
-
-pre {
-  overflow-x: auto;
-  padding: 1rem;
-  border-radius: var(--radius);
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
+.btn-animate-chars__text {
+  display: inline-block;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  vertical-align: bottom;
+}
+
+.btn-animate-chars__text span {
+  position: relative;
+  display: inline-block;
+  transform: translateY(0);
+  text-shadow: 0 1.25em currentColor;
+  transition: transform 0.55s cubic-bezier(0.625, 0.05, 0, 1);
+  will-change: transform;
+}
+
+.btn--arrow,
+.drop--arrow {
+  transform-origin: center;
+  transition: transform 0.4s cubic-bezier(0.625, 0.05, 0, 1);
+  will-change: transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover .btn-animate-chars__text span,
+  .btn--drop:hover .btn-animate-chars__text span {
+    transform: translateY(-1.25em);
+  }
+
+  .button:hover .btn--arrow {
+    transform: translateX(0.2rem);
+  }
+}
+
+/* ========================================================================== 
+   LOAD / SCROLL ANIMATIONS
+========================================================================== */
+
+[animation="load"],
+[animation="load-up"],
+[animation="load-left"],
+[animation="load-right"],
+[animation="load-stagger"] > *,
+[animation="load-split"],
+[animation="fade"],
+[animation="fade-up"],
+[animation="fade-left"],
+[animation="fade-right"],
+[animation="fade-stagger"] > *,
+[animation="fade-split"] {
+  will-change: transform, opacity;
+}
+
+[animation="load-split"],
+[animation="fade-split"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.load-split__line-mask,
+.fade-split__line-mask {
+  display: block;
+  overflow: hidden;
+}
+
+.load-split__line,
+.fade-split__line {
+  display: block;
+  will-change: transform, opacity;
+}
+
+/* ========================================================================== 
+   IMAGE PARALLAX
+========================================================================== */
+
+[image="parallax"] {
+  display: block;
+  width: 100%;
+  height: 116%;
+  max-width: none;
+  object-fit: cover;
+  will-change: transform;
+}
+
+/* ========================================================================== 
+   NAVBAR
+========================================================================== */
+
+.navbar {
+  transition: background-color 0.35s ease;
+}
+
+.navbar.is--scrolled:not(.is--menu-open) {
+  background-color: #01070b !important;
+}
+
+.menu--trigger {
+  position: relative;
+  z-index: 1002;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.menu--trigger:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 0.3rem;
+}
+
+.menu--to-open,
+.menu--to-close {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: currentColor;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+.menu--to-close {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(0.75) rotate(-90deg);
+  pointer-events: none;
+}
+
+/* ========================================================================== 
+   DROPDOWNS
+========================================================================== */
+
+.btn--drop {
+  position: relative;
+}
+
+.btn--drop .trigger {
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.drop--menu {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity, height;
+}
+
+.btn--drop.is--open .drop--menu {
+  pointer-events: auto;
+}
+
+.btn--drop.is--open .drop--arrow {
+  transform: rotate(180deg);
+}
+
+@media screen and (min-width: 992px) {
+  .drop--menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1003;
+    flex-direction: column;
+  }
+}
+
+/* ========================================================================== 
+   TABLET / MOBILE NAVBAR
+========================================================================== */
+
+@media screen and (max-width: 991px) {
+  .navbar {
+    z-index: 1000;
+  }
+
+  .navbar .container--nav,
+  .nav--brand,
+  .nav--right {
+    position: relative;
+    z-index: 1002;
+  }
+
+  .nav--menu {
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 1.25rem;
+
+    width: 100%;
+    height: 100dvh;
+    padding: 7rem 1.5rem 2rem;
+
+    opacity: 0;
+    pointer-events: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .nav--menu.is--open {
+    pointer-events: auto;
+  }
+
+  .nav--menu > * {
+    width: 100%;
+    opacity: 0;
+    transform: translateY(1.5rem);
+    filter: blur(6px);
+    will-change: transform, opacity, filter;
+  }
+
+  .btn--drop {
+    width: 100%;
+  }
+
+  .btn--drop .trigger,
+  .btn--drop .button.is--drop {
+    width: 100%;
+  }
+
+  .drop--menu {
+    position: relative;
+    width: 100%;
+    height: 0;
+    overflow: hidden;
+    flex-direction: column;
+  }
+
+  .drop--menu .button {
+    width: 100%;
+  }
+}
+
+/* Restore desktop navigation. */
+@media screen and (min-width: 992px) {
+  .nav--menu {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  .nav--menu > * {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* ========================================================================== 
+   REDUCED MOTION
+========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  [image="parallax"] {
+    height: 100%;
+    transform: none !important;
+  }
 }
