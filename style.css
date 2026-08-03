@@ -261,7 +261,6 @@ body.is--locked {
   .nav--brand,
   .navbar.is--menu-open .nav--brand {
     position: relative;
-    z-index: 1003;
     display: flex !important;
     opacity: 1 !important;
     visibility: visible !important;
