@@ -1,0 +1,86 @@
+/* ==========================================================================
+   COMLOG — ABOUT
+========================================================================== */
+
+/* ==========================================================================
+   QUOTES SLIDER
+========================================================================== */
+
+.swiper.is--quotes {
+  width: 100%;
+  overflow: hidden;
+}
+
+.swiper-wrapper.is--quotes {
+  align-items: stretch;
+  gap: 0 !important;
+}
+
+.swiper-slide.is--quotes {
+  height: auto;
+}
+
+.quote--item {
+  height: 100%;
+}
+
+/*
+  Swiper handles the gaps through JavaScript:
+
+  Desktop: 1.5rem
+  Tablet:  1rem
+  Mobile:  1rem
+*/
+
+/* ==========================================================================
+   NAVIGATION
+========================================================================== */
+
+.swiper--button-wrap.is--quotes {
+  position: relative;
+  z-index: 2;
+}
+
+.swiper--button-wrap.is--quotes .swiper--button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.swiper--button-wrap.is--quotes .swiper--button.swiper-button-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.swiper--button-wrap.is--quotes .swiper-button-lock {
+  display: flex !important;
+}
+
+/* ==========================================================================
+   TABLET
+========================================================================== */
+
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .swiper.is--quotes {
+    overflow: hidden;
+  }
+}
+
+/* ==========================================================================
+   MOBILE
+========================================================================== */
+
+@media screen and (max-width: 767px) {
+  .swiper.is--quotes {
+    overflow: hidden;
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .swiper.is--quotes,
+  .swiper.is--quotes * {
+    scroll-behavior: auto !important;
+  }
+}

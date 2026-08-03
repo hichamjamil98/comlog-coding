@@ -7,47 +7,127 @@
     "use strict";
   
     document.addEventListener("DOMContentLoaded", () => {
-      if (typeof Swiper === "undefined") return;
+      if (typeof Swiper === "undefined") {
+        console.warn("Comlog About: Swiper is missing.");
+        return;
+      }
   
       initQuotesSlider();
     });
   
-    function rem(value) {
-      return (
-        value *
-        parseFloat(getComputedStyle(document.documentElement).fontSize)
-      );
+    function remToPx(value) {
+      const rootFontSize =
+        parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  
+      return value * rootFontSize;
     }
   
-    function spacing() {
-      if (window.innerWidth >= 992) return rem(1.5);
-      return rem(1);
+    function getQuotesSpacing() {
+      return window.innerWidth >= 992 ? remToPx(1.5) : remToPx(1);
+    }
+  
+    function getNavigation(slider) {
+      const section = slider.closest(".section") || slider.parentElement;
+  
+      return {
+        previous:
+          section?.querySelector(
+            ".swiper--button-wrap.is--quotes .swiper--button.is--previous",
+          ) ||
+          section?.querySelector(".swiper--button.is--previous") ||
+          null,
+  
+        next:
+          section?.querySelector(
+            ".swiper--button-wrap.is--quotes .swiper--button.is--next",
+          ) ||
+          section?.querySelector(".swiper--button.is--next") ||
+          null,
+      };
+    }
+  
+    function bindResponsiveSpacing(swiper) {
+      let resizeFrame = null;
+  
+      const update = () => {
+        if (resizeFrame) {
+          cancelAnimationFrame(resizeFrame);
+        }
+  
+        resizeFrame = requestAnimationFrame(() => {
+          const spacing = getQuotesSpacing();
+  
+          if (swiper.params.spaceBetween !== spacing) {
+            swiper.params.spaceBetween = spacing;
+            swiper.update();
+  
+            if (typeof swiper.loopFix === "function") {
+              swiper.loopFix();
+            }
+          }
+        });
+      };
+  
+      window.addEventListener("resize", update, { passive: true });
+      window.addEventListener("orientationchange", update, { passive: true });
     }
   
     function initQuotesSlider() {
-      const slider = document.querySelector(".swiper.is--quotes");
-      if (!slider || slider.swiper) return;
+      const sliders = document.querySelectorAll(".swiper.is--quotes");
   
-      const section = slider.closest(".section");
+      sliders.forEach((slider) => {
+        if (slider.swiper) return;
   
-      const swiper = new Swiper(slider, {
-        slidesPerView: "auto",
-        spaceBetween: spacing(),
-        speed: 700,
-        grabCursor: true,
-        observer: true,
-        observeParents: true,
-        watchOverflow: false,
+        const navigation = getNavigation(slider);
+        const slides = slider.querySelectorAll(".swiper-slide.is--quotes");
   
-        navigation: {
-          prevEl: section.querySelector(".swiper--button.is--previous"),
-          nextEl: section.querySelector(".swiper--button.is--next"),
-        },
-      });
+        if (!slides.length) return;
   
-      window.addEventListener("resize", () => {
-        swiper.params.spaceBetween = spacing();
-        swiper.update();
+        const swiper = new Swiper(slider, {
+          slidesPerView: "auto",
+          spaceBetween: getQuotesSpacing(),
+          speed: 700,
+  
+          loop: slides.length > 1,
+          loopAdditionalSlides: Math.min(slides.length, 4),
+          loopPreventsSliding: false,
+  
+          centeredSlides: false,
+          centerInsufficientSlides: false,
+  
+          grabCursor: true,
+          watchOverflow: false,
+  
+          observer: true,
+          observeParents: true,
+          observeSlideChildren: true,
+  
+          resistanceRatio: 0.75,
+          roundLengths: false,
+  
+          keyboard: {
+            enabled: true,
+            onlyInViewport: true,
+          },
+  
+          navigation: {
+            prevEl: navigation.previous,
+            nextEl: navigation.next,
+          },
+  
+          on: {
+            init(instance) {
+              instance.el.classList.add("is--ready");
+            },
+  
+            resize(instance) {
+              instance.params.spaceBetween = getQuotesSpacing();
+              instance.update();
+            },
+          },
+        });
+  
+        bindResponsiveSpacing(swiper);
       });
     }
   })();
