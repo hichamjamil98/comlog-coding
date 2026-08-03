@@ -1,0 +1,151 @@
+/* ==========================================================================
+   COMLOG — HOME
+========================================================================== */
+
+/* ==========================================================================
+   SHARED SWIPER
+========================================================================== */
+
+.swiper.is--services,
+.swiper.is--projects {
+  width: 100%;
+  overflow: hidden;
+}
+
+.swiper-wrapper.is--services,
+.swiper-wrapper.is--projects {
+  align-items: stretch;
+}
+
+.swiper-slide.is--services,
+.swiper-slide.is--projects {
+  height: auto;
+}
+
+.swiper--button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.swiper--button.swiper-button-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   SERVICES SLIDER
+========================================================================== */
+
+/*
+  Swiper controls the spacing through JavaScript:
+
+  Desktop: 0
+  Tablet:  1rem
+  Mobile:  0
+*/
+
+.swiper.is--services .swiper-wrapper {
+  gap: 0 !important;
+}
+
+.swiper-slide.is--services {
+  position: relative;
+}
+
+/* ==========================================================================
+   SERVICES CARD HOVER — DESKTOP ONLY
+========================================================================== */
+
+@media screen and (min-width: 992px) and (hover: hover) and (pointer: fine) {
+  .swiper-slide.is--services {
+    overflow: hidden;
+  }
+
+  .swiper-slide.is--services .service--image {
+    overflow: hidden;
+  }
+
+  .swiper-slide.is--services .service--image img {
+    transform: scale(1);
+    transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  .swiper-slide.is--services .service--card-hover {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0.45s;
+    will-change: opacity;
+  }
+
+  .swiper-slide.is--services:hover .service--card-hover,
+  .swiper-slide.is--services:focus-within .service--card-hover {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0s;
+  }
+
+  .swiper-slide.is--services:hover .service--image img,
+  .swiper-slide.is--services:focus-within .service--image img {
+    transform: scale(1.045);
+  }
+}
+
+/* ==========================================================================
+   PROJECTS SLIDER
+========================================================================== */
+
+/*
+  Swiper controls the spacing through JavaScript:
+
+  Desktop: 1.5rem
+  Tablet:  1rem
+  Mobile:  0
+*/
+
+.swiper.is--projects .swiper-wrapper {
+  gap: 0 !important;
+}
+
+/* ==========================================================================
+   TABLET
+========================================================================== */
+
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  /*
+    Keep card content exactly as configured in Webflow.
+    Swiper applies 1rem spacing to both sliders.
+  */
+}
+
+/* ==========================================================================
+   MOBILE
+========================================================================== */
+
+@media screen and (max-width: 767px) {
+  /*
+    Both sliders use 0 spacing on mobile.
+    Internal slide dimensions remain controlled by Webflow.
+  */
+
+  .swiper.is--services,
+  .swiper.is--projects {
+    overflow: visible;
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .swiper-slide.is--services .service--image img,
+  .swiper-slide.is--services .service--card-hover {
+    transition: none !important;
+  }
+}
