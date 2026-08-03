@@ -305,115 +305,200 @@
   /* ========================================================================
      5. NAVBAR DROPDOWNS
 
+     Required structure:
      .btn--drop
-     .trigger
-     .drop--menu
-     .drop--arrow
+       .trigger
+         .button.is--drop
+           .drop--arrow
+       .drop--menu
+
+     Desktop:
+     - opens on hover and keyboard focus
+     - also opens/closes on trigger click
+
+     Tablet/mobile:
+     - accordion behavior on trigger click
+     - only one dropdown stays open
   ======================================================================== */
 
   function initDropdowns(breakpoint) {
     const dropdowns = [...document.querySelectorAll(".btn--drop")];
     if (!dropdowns.length) return;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
 
     function getParts(dropdown) {
-      return {
-        trigger: dropdown.querySelector(".trigger"),
-        triggerLink: dropdown.querySelector(".trigger .button.is--drop"),
-        menu: dropdown.querySelector(".drop--menu"),
-        arrow: dropdown.querySelector(".drop--arrow"),
-        links: [...dropdown.querySelectorAll(".drop--menu > a")],
-      };
+      const trigger = dropdown.querySelector(":scope > .trigger");
+      const triggerButton =
+        trigger?.querySelector(".button.is--drop") ||
+        trigger?.querySelector("a, button");
+      const menu = dropdown.querySelector(":scope > .drop--menu");
+      const arrow = trigger?.querySelector(".drop--arrow");
+
+      return { trigger, triggerButton, menu, arrow };
     }
 
-    function closeDropdown(dropdown, immediate = false) {
-      const { trigger, triggerLink, menu, arrow } = getParts(dropdown);
+    function setAccessibility(dropdown) {
+      const { trigger, triggerButton, menu } = getParts(dropdown);
+      if (!trigger || !triggerButton || !menu) return;
+
+      if (!menu.id) {
+        menu.id = `comlog-dropdown-${Math.random()
+          .toString(36)
+          .slice(2, 9)}`;
+      }
+
+      triggerButton.setAttribute("aria-haspopup", "true");
+      triggerButton.setAttribute("aria-expanded", "false");
+      triggerButton.setAttribute("aria-controls", menu.id);
+      menu.setAttribute("aria-hidden", "true");
+    }
+
+    function setClosedStyles(dropdown) {
+      const { menu, arrow } = getParts(dropdown);
       if (!menu) return;
 
       dropdown.classList.remove("is--open");
-      trigger?.setAttribute("aria-expanded", "false");
-      triggerLink?.setAttribute("aria-expanded", "false");
 
-      gsap.killTweensOf([menu, arrow]);
+      gsap.set(menu, {
+        display: "none",
+        opacity: 0,
+        height: breakpoint.matches ? 0 : "auto",
+        y: breakpoint.matches ? 0 : "0.5rem",
+        pointerEvents: "none",
+      });
+
+      if (arrow) {
+        gsap.set(arrow, { rotate: 0 });
+      }
+    }
+
+    function closeDropdown(dropdown, { immediate = false } = {}) {
+      const { triggerButton, menu, arrow } = getParts(dropdown);
+      if (!menu) return;
+
+      dropdown.classList.remove("is--open");
+      triggerButton?.setAttribute("aria-expanded", "false");
+      menu.setAttribute("aria-hidden", "true");
+
+      gsap.killTweensOf([menu, arrow].filter(Boolean));
 
       if (immediate || reducedMotion.matches) {
-        gsap.set(arrow, { rotate: 0 });
-        gsap.set(menu, {
-          display: "none",
-          opacity: 0,
-          height: breakpoint.matches ? 0 : "auto",
-          y: breakpoint.matches ? 0 : "0.5rem",
-          pointerEvents: "none",
-        });
+        setClosedStyles(dropdown);
         return;
       }
 
-      gsap.to(arrow, { rotate: 0, duration: 0.25, ease: "power2.out" });
+      if (arrow) {
+        gsap.to(arrow, {
+          rotate: 0,
+          duration: 0.3,
+          ease: "power2.out",
+        });
+      }
 
       if (breakpoint.matches) {
         gsap.to(menu, {
           height: 0,
           opacity: 0,
-          duration: 0.32,
+          duration: 0.35,
           ease: "power2.inOut",
-          onComplete: () => gsap.set(menu, { display: "none", pointerEvents: "none" }),
+          onComplete: () => {
+            gsap.set(menu, {
+              display: "none",
+              pointerEvents: "none",
+            });
+          },
         });
       } else {
         gsap.to(menu, {
           opacity: 0,
           y: "0.5rem",
-          duration: 0.22,
+          duration: 0.24,
           ease: "power2.in",
-          onComplete: () => gsap.set(menu, { display: "none", pointerEvents: "none" }),
+          onComplete: () => {
+            gsap.set(menu, {
+              display: "none",
+              pointerEvents: "none",
+            });
+          },
         });
       }
     }
 
-    function openDropdown(dropdown) {
-      const { trigger, triggerLink, menu, arrow, links } = getParts(dropdown);
-      if (!menu) return;
-
-      dropdowns.forEach((other) => {
-        if (other !== dropdown) closeDropdown(other);
+    function closeOtherDropdowns(currentDropdown) {
+      dropdowns.forEach((dropdown) => {
+        if (
+          dropdown !== currentDropdown &&
+          dropdown.classList.contains("is--open")
+        ) {
+          closeDropdown(dropdown);
+        }
       });
+    }
+
+    function openDropdown(dropdown) {
+      const { triggerButton, menu, arrow } = getParts(dropdown);
+      if (!menu || dropdown.classList.contains("is--open")) return;
+
+      closeOtherDropdowns(dropdown);
 
       dropdown.classList.add("is--open");
-      trigger?.setAttribute("aria-expanded", "true");
-      triggerLink?.setAttribute("aria-expanded", "true");
+      triggerButton?.setAttribute("aria-expanded", "true");
+      menu.setAttribute("aria-hidden", "false");
 
-      gsap.killTweensOf([menu, arrow, ...links]);
-      gsap.set(menu, { display: "flex", pointerEvents: "auto" });
-      gsap.to(arrow, { rotate: 180, duration: 0.3, ease: "power2.out" });
+      gsap.killTweensOf([menu, arrow].filter(Boolean));
+
+      gsap.set(menu, {
+        display: "flex",
+        pointerEvents: "auto",
+      });
+
+      if (arrow) {
+        gsap.to(arrow, {
+          rotate: 180,
+          duration: 0.35,
+          ease: "power2.out",
+        });
+      }
 
       if (reducedMotion.matches) {
-        gsap.set(menu, { opacity: 1, height: "auto", y: 0 });
+        gsap.set(menu, {
+          opacity: 1,
+          height: "auto",
+          y: 0,
+        });
         return;
       }
 
       if (breakpoint.matches) {
         gsap.fromTo(
           menu,
-          { height: 0, opacity: 0 },
-          { height: "auto", opacity: 1, duration: 0.38, ease: "power2.out" },
-        );
-
-        gsap.fromTo(
-          links,
-          { opacity: 0, y: "0.5rem" },
-          { opacity: 1, y: 0, duration: 0.35, stagger: 0.045, ease: "power3.out" },
+          {
+            height: 0,
+            opacity: 0,
+          },
+          {
+            height: "auto",
+            opacity: 1,
+            duration: 0.42,
+            ease: "power2.out",
+          },
         );
       } else {
         gsap.fromTo(
           menu,
-          { opacity: 0, y: "0.5rem" },
-          { opacity: 1, y: 0, duration: 0.28, ease: "power2.out" },
-        );
-
-        gsap.fromTo(
-          links,
-          { opacity: 0, y: "0.35rem" },
-          { opacity: 1, y: 0, duration: 0.3, stagger: 0.035, ease: "power3.out" },
+          {
+            opacity: 0,
+            y: "0.5rem",
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.3,
+            ease: "power2.out",
+          },
         );
       }
     }
@@ -424,67 +509,93 @@
         : openDropdown(dropdown);
     }
 
-    dropdowns.forEach((dropdown, index) => {
-      const { trigger, triggerLink, menu } = getParts(dropdown);
-      if (!trigger || !triggerLink || !menu) return;
+    dropdowns.forEach((dropdown) => {
+      const { trigger, triggerButton, menu } = getParts(dropdown);
+      if (!trigger || !triggerButton || !menu) return;
 
-      const menuId = menu.id || `comlog-dropdown-${index + 1}`;
-      menu.id = menuId;
+      setAccessibility(dropdown);
+      setClosedStyles(dropdown);
 
-      trigger.setAttribute("aria-expanded", "false");
-      triggerLink.setAttribute("aria-expanded", "false");
-      triggerLink.setAttribute("aria-controls", menuId);
-      triggerLink.setAttribute("aria-haspopup", "true");
-
-      closeDropdown(dropdown, true);
-
-      triggerLink.addEventListener("click", (event) => {
-        // Dropdown triggers only control their submenu.
+      triggerButton.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
         toggleDropdown(dropdown);
       });
 
-      triggerLink.addEventListener("keydown", (event) => {
-        if (event.key === "ArrowDown") {
+      triggerButton.addEventListener("keydown", (event) => {
+        if (
+          event.key === "Enter" ||
+          event.key === " " ||
+          event.key === "ArrowDown"
+        ) {
           event.preventDefault();
           openDropdown(dropdown);
-          menu.querySelector("a")?.focus();
+
+          const firstLink = menu.querySelector("a, button");
+          firstLink?.focus();
         }
       });
 
       dropdown.addEventListener("mouseenter", () => {
-        if (!breakpoint.matches) openDropdown(dropdown);
+        if (!breakpoint.matches) {
+          openDropdown(dropdown);
+        }
       });
 
       dropdown.addEventListener("mouseleave", () => {
-        if (!breakpoint.matches) closeDropdown(dropdown);
+        if (!breakpoint.matches) {
+          closeDropdown(dropdown);
+        }
       });
 
       dropdown.addEventListener("focusin", () => {
-        if (!breakpoint.matches) openDropdown(dropdown);
+        if (!breakpoint.matches) {
+          openDropdown(dropdown);
+        }
       });
 
       dropdown.addEventListener("focusout", (event) => {
-        if (!breakpoint.matches && !dropdown.contains(event.relatedTarget)) {
+        if (
+          !breakpoint.matches &&
+          !dropdown.contains(event.relatedTarget)
+        ) {
           closeDropdown(dropdown);
         }
+      });
+
+      menu.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          if (breakpoint.matches) {
+            closeDropdown(dropdown, { immediate: true });
+          }
+        });
       });
     });
 
     document.addEventListener("click", (event) => {
       dropdowns.forEach((dropdown) => {
-        if (!dropdown.contains(event.target)) closeDropdown(dropdown);
+        if (!dropdown.contains(event.target)) {
+          closeDropdown(dropdown);
+        }
       });
     });
 
     document.addEventListener("keydown", (event) => {
       if (event.key !== "Escape") return;
-      dropdowns.forEach((dropdown) => closeDropdown(dropdown));
+
+      dropdowns.forEach((dropdown) => {
+        if (dropdown.classList.contains("is--open")) {
+          const { triggerButton } = getParts(dropdown);
+          closeDropdown(dropdown);
+          triggerButton?.focus();
+        }
+      });
     });
 
     breakpoint.addEventListener("change", () => {
-      dropdowns.forEach((dropdown) => closeDropdown(dropdown, true));
+      dropdowns.forEach((dropdown) => {
+        closeDropdown(dropdown, { immediate: true });
+      });
     });
   }
 
