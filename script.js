@@ -23,6 +23,7 @@
     initButtonCharacters();
     initLoadAnimations(ease);
     initScrollAnimations(ease);
+    initRodAnimation();
     initParallax();
     initDropdowns(mobileQuery);
     initMobileMenu(mobileQuery);
@@ -270,6 +271,45 @@
 
     element.dataset[readyKey] = "true";
     return element.querySelector(`.${prefix}__line`);
+  }
+
+
+  /* =========================================================================
+     ROD / LINE ANIMATION
+     animation="rod"
+  ========================================================================= */
+
+  function initRodAnimation() {
+    const elements = gsap.utils.toArray('[animation="rod"]');
+    if (!elements.length) return;
+
+    if (
+      typeof ScrollTrigger === "undefined" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      gsap.set(elements, { scaleX: 1 });
+      return;
+    }
+
+    elements.forEach((element) => {
+      gsap.fromTo(
+        element,
+        {
+          scaleX: 0,
+        },
+        {
+          scaleX: 1,
+          duration: 1,
+          ease: "power3.out",
+          clearProps: "transform",
+          scrollTrigger: {
+            trigger: element,
+            start: "top 88%",
+            once: true,
+          },
+        },
+      );
+    });
   }
 
   /* =========================================================================
@@ -589,4 +629,4 @@
 
     if (!mobileQuery.matches) closeMenu(true);
   }
-})();
+})(); 

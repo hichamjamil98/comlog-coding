@@ -22,6 +22,12 @@ body.is--locked {
   background-color: #ffffff !important;
 }
 
+/* Keep the brand above the opened tablet/mobile menu. */
+.nav--brand {
+  position: relative;
+  z-index: 1009;
+}
+
 /* ==========================================================================
    BUTTON HOVER
 ========================================================================== */
@@ -68,8 +74,13 @@ body.is--locked {
   .button:hover [data-button-animate-chars] span,
   .btn:hover .btn-animate-chars__text span,
   .btn:hover [data-button-animate-chars] span,
-  .btn--drop:hover .btn-animate-chars__text span,
-  .btn--drop:hover [data-button-animate-chars] span {
+
+  /*
+    Only animate the dropdown trigger.
+    Using .btn--drop:hover would animate every link inside .drop--menu.
+  */
+  .btn--drop > .trigger:hover .btn-animate-chars__text span,
+  .btn--drop > .trigger:hover [data-button-animate-chars] span {
     transform: translateY(-1.4em);
   }
 
@@ -108,6 +119,15 @@ body.is--locked {
 .fade-split__line {
   display: block;
   will-change: transform, opacity;
+}
+
+/* ==========================================================================
+   ROD / LINE
+========================================================================== */
+
+[animation="rod"] {
+  transform-origin: left center;
+  will-change: transform;
 }
 
 /* ==========================================================================
@@ -191,10 +211,14 @@ body.is--locked {
   }
 
   .navbar .container--nav,
-  .nav--brand,
   .nav--right {
     position: relative;
     z-index: 1002;
+  }
+
+  .nav--brand {
+    position: relative;
+    z-index: 1009;
   }
 
   /*
@@ -245,6 +269,10 @@ body.is--locked {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  [animation="rod"] {
+    transform: none !important;
   }
 
   [image="parallax"] {
