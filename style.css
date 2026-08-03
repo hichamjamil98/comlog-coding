@@ -18,9 +18,12 @@ body.is--locked {
 
 .btn-animate-chars__text,
 [data-button-animate-chars] {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  height: 1em;
+  line-height: 1;
   overflow: hidden;
-  vertical-align: bottom;
+  vertical-align: middle;
 }
 
 .btn-animate-chars__text span,
@@ -28,7 +31,8 @@ body.is--locked {
   position: relative;
   display: inline-block;
   transform: translateY(0);
-  text-shadow: 0 1.25em currentColor;
+  line-height: 1;
+  text-shadow: 0 1em currentColor;
   transition: transform 0.55s cubic-bezier(0.625, 0.05, 0, 1);
   will-change: transform;
 }
@@ -56,7 +60,7 @@ body.is--locked {
   .nav--menu a:hover [data-button-animate-chars] span,
   .btn--drop > .trigger:hover .btn-animate-chars__text span,
   .btn--drop > .trigger:hover [data-button-animate-chars] span {
-    transform: translateY(-1.25em);
+    transform: translateY(-1em);
   }
 
   .button:hover .btn--arrow,
@@ -121,17 +125,15 @@ body.is--locked {
 ========================================================================== */
 
 /*
-  Keep the navbar background exactly as configured in Webflow.
-  These rules only neutralize the previous script's scroll state.
+  Navbar always stays white, including while scrolling.
 */
-.navbar.is--scrolled {
-  background-color: revert-layer !important;
+.navbar,
+.navbar.is--scrolled,
+.navbar.is--menu-open {
+  background-color: #ffffff !important;
 }
 
 @media screen and (min-width: 992px) {
-  .navbar {
-    background-color: revert-layer !important;
-  }
 
   .nav--menu {
     display: flex !important;
@@ -241,14 +243,10 @@ body.is--locked {
 
 @media screen and (min-width: 992px) {
   .btn--drop > .drop--menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 1003;
-    width: max-content;
-    min-width: 100%;
-    height: auto !important;
-    overflow: visible;
+    position: static;
+    width: auto;
+    min-width: 0;
+    overflow: hidden;
   }
 }
 
@@ -268,16 +266,15 @@ body.is--locked {
     z-index: 1002;
   }
 
+  /*
+    Webflow keeps control of padding, alignment, visibility helpers,
+    .is--menu--tablet, .button--hide--mobile and dropdown layout.
+  */
   .nav--menu {
     position: fixed;
     inset: 0;
     z-index: 1001;
-
     display: none;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.25rem;
-
     width: 100%;
     height: 100dvh;
     opacity: 0;
@@ -290,17 +287,6 @@ body.is--locked {
     pointer-events: auto;
   }
 
-  .nav--menu > * {
-    width: 100%;
-    opacity: 0;
-    transform: translateY(1.5rem);
-    filter: blur(6px);
-    will-change: transform, opacity, filter;
-  }
-
-  .btn--drop {
-    width: 100%;
-  }
 
   .btn--drop .trigger,
   .btn--drop .button.is--drop {
@@ -352,4 +338,13 @@ body.is--locked {
     height: 100%;
     transform: none !important;
   }
+}
+
+
+/* Extra clipping safety for animated button text */
+.button .btn-animate-chars__text,
+.button [data-button-animate-chars],
+.btn .btn-animate-chars__text,
+.btn [data-button-animate-chars] {
+  clip-path: inset(0 0 0 0);
 }

@@ -46,7 +46,7 @@
 
     const restoreNavbarBackground = () => {
       navbar.classList.remove("is--scrolled");
-      navbar.style.removeProperty("background-color");
+      navbar.style.setProperty("background-color", "#ffffff", "important");
     };
 
     const restoreDesktopMenu = () => {
@@ -437,16 +437,13 @@
       if (breakpoint.matches) {
         gsap.set(menu, {
           display: "none",
-          opacity: 0,
           height: 0,
-          y: 0,
+          overflow: "hidden",
           pointerEvents: "none",
         });
       } else {
         gsap.set(menu, {
-          clearProps: "display,height",
-          opacity: 0,
-          y: "0.5rem",
+          clearProps: "display,height,overflow,opacity,transform",
           pointerEvents: "none",
         });
       }
@@ -482,12 +479,12 @@
       if (breakpoint.matches) {
         gsap.to(menu, {
           height: 0,
-          opacity: 0,
           duration: 0.35,
           ease: "power2.inOut",
           onComplete: () => {
             gsap.set(menu, {
               display: "none",
+              clearProps: "height,overflow,opacity,transform",
               pointerEvents: "none",
             });
           },
@@ -495,12 +492,12 @@
       } else {
         gsap.to(menu, {
           opacity: 0,
-          y: "0.5rem",
           duration: 0.24,
           ease: "power2.in",
           onComplete: () => {
             gsap.set(menu, {
               display: "none",
+              clearProps: "height,overflow,opacity,transform",
               pointerEvents: "none",
             });
           },
@@ -548,7 +545,6 @@
         gsap.set(menu, {
           opacity: 1,
           height: "auto",
-          y: 0,
         });
         return;
       }
@@ -558,11 +554,9 @@
           menu,
           {
             height: 0,
-            opacity: 0,
           },
           {
             height: "auto",
-            opacity: 1,
             duration: 0.42,
             ease: "power2.out",
           },
@@ -572,11 +566,9 @@
           menu,
           {
             opacity: 0,
-            y: "0.5rem",
           },
           {
             opacity: 1,
-            y: 0,
             duration: 0.3,
             ease: "power2.out",
           },
