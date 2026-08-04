@@ -3,6 +3,69 @@
 ========================================================================== */
 
 /* ==========================================================================
+   HOME LOADING SCREEN
+========================================================================== */
+
+html.is-loading,
+body.is-loading {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+.loading--screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100dvh;
+
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+
+  overflow: hidden;
+  will-change: clip-path, opacity;
+}
+
+.brand--loading-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  will-change: transform, opacity;
+}
+
+.brand--loading-wrapper img,
+.brand--loading-wrapper svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  will-change: opacity;
+}
+
+/*
+  Prevent a flash of the page before GSAP initializes the loader.
+  Webflow Designer remains unaffected.
+*/
+html:not(.w-editor) body:has(.loading--screen) .main-wrapper,
+html:not(.w-editor) body:has(.loading--screen) .navbar {
+  opacity: 0;
+  visibility: hidden;
+}
+
+html:not(.w-editor) body:not(.is-loading) .main-wrapper,
+html:not(.w-editor) body:not(.is-loading) .navbar {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ==========================================================================
    SHARED SWIPER
 ========================================================================== */
 
@@ -29,6 +92,10 @@
 .swiper--button.swiper-button-disabled {
   opacity: 0.4;
   pointer-events: none;
+}
+
+.swiper--button.swiper-button-lock {
+  display: flex !important;
 }
 
 /* ==========================================================================
@@ -140,10 +207,34 @@
 }
 
 /* ==========================================================================
+   WEBFLOW DESIGNER
+========================================================================== */
+
+.w-editor .loading--screen {
+  display: none !important;
+}
+
+.w-editor .main-wrapper,
+.w-editor .navbar {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* ==========================================================================
    REDUCED MOTION
 ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
+  .loading--screen {
+    display: none !important;
+  }
+
+  .main-wrapper,
+  .navbar {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
   .swiper-slide.is--services .service--image img,
   .swiper-slide.is--services .service--card-hover {
     transition: none !important;
