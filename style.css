@@ -124,17 +124,22 @@ body.is--locked {
    DROPDOWNS — DESKTOP
 ========================================================================== */
 
-.btn--drop {
+.dropdown {
   position: relative;
 }
 
-.drop--menu {
+.dropdown--trigger {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dropdown--list {
   display: none;
   flex-direction: column;
 }
 
 @media screen and (min-width: 992px) {
-  .btn--drop > .drop--menu {
+  .dropdown > .dropdown--list {
     position: absolute;
     top: 100%;
     left: 0;
@@ -143,13 +148,13 @@ body.is--locked {
     min-width: 100%;
   }
 
-  .btn--drop:hover > .drop--menu,
-  .btn--drop:focus-within > .drop--menu {
+  .dropdown:hover > .dropdown--list,
+  .dropdown:focus-within > .dropdown--list {
     display: flex;
   }
 
-  .btn--drop:hover .drop--arrow,
-  .btn--drop:focus-within .drop--arrow {
+  .dropdown:hover .drop--arrow,
+  .dropdown:focus-within .drop--arrow {
     transform: rotate(180deg);
   }
 }
@@ -219,17 +224,17 @@ body.is--locked {
     pointer-events: auto;
   }
 
-  .btn--drop > .drop--menu {
+  .dropdown > .dropdown--list {
     position: static;
     width: auto;
     min-width: 0;
   }
 
-  .btn--drop.is--open > .drop--menu {
+  .dropdown.is--open > .dropdown--list {
     display: flex;
   }
 
-  .btn--drop.is--open .drop--arrow {
+  .dropdown.is--open .drop--arrow {
     transform: rotate(180deg);
   }
 }

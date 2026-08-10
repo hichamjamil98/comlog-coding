@@ -94,13 +94,13 @@
       menu.classList.remove("is--open");
       gsap.set(menu, { clearProps: "all" });
 
-      menu.querySelectorAll(".btn--drop").forEach((dropdown) => {
+      menu.querySelectorAll(".dropdown").forEach((dropdown) => {
         dropdown.classList.remove("is--open");
       });
 
-      menu.querySelectorAll(".drop--menu").forEach((dropMenu) => {
-        gsap.set(dropMenu, { clearProps: "all" });
-        dropMenu.setAttribute("aria-hidden", "true");
+      menu.querySelectorAll(".dropdown--list").forEach((dropList) => {
+        gsap.set(dropList, { clearProps: "all" });
+        dropList.setAttribute("aria-hidden", "true");
       });
     }
   }
@@ -446,24 +446,29 @@
      DROPDOWNS
   ========================================================================= */
 
+  function getDropdownParts(dropdown) {
+    return {
+      trigger: dropdown.querySelector(":scope > .dropdown--trigger"),
+      list: dropdown.querySelector(":scope > .dropdown--list"),
+      arrow: dropdown.querySelector(":scope > .dropdown--trigger .drop--arrow"),
+    };
+  }
+
   function initDropdowns(mobileQuery) {
-    const dropdowns = [...document.querySelectorAll(".btn--drop")];
+    const dropdowns = [...document.querySelectorAll(".dropdown")];
 
     const closeDropdown = (dropdown, immediate = false) => {
-      const trigger = dropdown.querySelector(":scope > .trigger a, :scope > .trigger button");
-      const menu = dropdown.querySelector(":scope > .drop--menu");
-      const arrow = dropdown.querySelector(":scope > .trigger .drop--arrow");
-
-      if (!menu) return;
+      const { trigger, list, arrow } = getDropdownParts(dropdown);
+      if (!list) return;
 
       dropdown.classList.remove("is--open");
       trigger?.setAttribute("aria-expanded", "false");
-      menu.setAttribute("aria-hidden", "true");
+      list.setAttribute("aria-hidden", "true");
 
-      gsap.killTweensOf([menu, arrow].filter(Boolean));
+      gsap.killTweensOf([list, arrow].filter(Boolean));
 
       if (!mobileQuery.matches || immediate) {
-        gsap.set(menu, { clearProps: "all" });
+        gsap.set(list, { clearProps: "all" });
         if (arrow) gsap.set(arrow, { clearProps: "transform" });
         return;
       }
@@ -476,12 +481,12 @@
         });
       }
 
-      gsap.to(menu, {
+      gsap.to(list, {
         height: 0,
         duration: 0.3,
         ease: "power2.inOut",
         onComplete: () => {
-          gsap.set(menu, {
+          gsap.set(list, {
             display: "none",
             clearProps: "height,overflow",
           });
@@ -490,11 +495,8 @@
     };
 
     const openDropdown = (dropdown) => {
-      const trigger = dropdown.querySelector(":scope > .trigger a, :scope > .trigger button");
-      const menu = dropdown.querySelector(":scope > .drop--menu");
-      const arrow = dropdown.querySelector(":scope > .trigger .drop--arrow");
-
-      if (!menu) return;
+      const { trigger, list, arrow } = getDropdownParts(dropdown);
+      if (!list) return;
 
       dropdowns.forEach((item) => {
         if (item !== dropdown) closeDropdown(item, true);
@@ -502,12 +504,12 @@
 
       dropdown.classList.add("is--open");
       trigger?.setAttribute("aria-expanded", "true");
-      menu.setAttribute("aria-hidden", "false");
+      list.setAttribute("aria-hidden", "false");
 
       if (!mobileQuery.matches) return;
 
-      gsap.killTweensOf([menu, arrow].filter(Boolean));
-      gsap.set(menu, {
+      gsap.killTweensOf([list, arrow].filter(Boolean));
+      gsap.set(list, {
         display: "flex",
         height: 0,
         overflow: "hidden",
@@ -521,37 +523,48 @@
         });
       }
 
-      gsap.to(menu, {
+      gsap.to(list, {
         height: "auto",
         duration: 0.35,
         ease: "power2.out",
         onComplete: () => {
-          gsap.set(menu, { clearProps: "height,overflow" });
+          gsap.set(list, { clearProps: "height,overflow" });
         },
       });
     };
 
+    const toggleDropdown = (dropdown) => {
+      dropdown.classList.contains("is--open")
+        ? closeDropdown(dropdown)
+        : openDropdown(dropdown);
+    };
+
     dropdowns.forEach((dropdown, index) => {
-      const trigger = dropdown.querySelector(":scope > .trigger a, :scope > .trigger button");
-      const menu = dropdown.querySelector(":scope > .drop--menu");
+      const { trigger, list } = getDropdownParts(dropdown);
+      if (!trigger || !list) return;
 
-      if (!trigger || !menu) return;
+      if (!list.id) list.id = `comlog-dropdown-${index + 1}`;
 
-      if (!menu.id) menu.id = `comlog-dropdown-${index + 1}`;
-
+      trigger.setAttribute("role", "button");
+      trigger.setAttribute("tabindex", "0");
       trigger.setAttribute("aria-haspopup", "true");
       trigger.setAttribute("aria-expanded", "false");
-      trigger.setAttribute("aria-controls", menu.id);
-      menu.setAttribute("aria-hidden", "true");
+      trigger.setAttribute("aria-controls", list.id);
+      list.setAttribute("aria-hidden", "true");
 
       trigger.addEventListener("click", (event) => {
         if (!mobileQuery.matches) return;
 
         event.preventDefault();
+        toggleDropdown(dropdown);
+      });
 
-        dropdown.classList.contains("is--open")
-          ? closeDropdown(dropdown)
-          : openDropdown(dropdown);
+      trigger.addEventListener("keydown", (event) => {
+        if (!mobileQuery.matches) return;
+        if (event.key !== "Enter" && event.key !== " ") return;
+
+        event.preventDefault();
+        toggleDropdown(dropdown);
       });
     });
 
@@ -609,7 +622,7 @@
       navbar.classList.remove("is--menu-open");
       unlock();
 
-      document.querySelectorAll(".btn--drop.is--open").forEach((dropdown) => {
+      document.querySelectorAll(".dropdown.is--open").forEach((dropdown) => {
         dropdown.classList.remove("is--open");
       });
 
@@ -720,7 +733,7 @@
       if (event.key === "Escape" && open) closeMenu();
     });
 
-    menu.querySelectorAll("a:not(.button.is--drop)").forEach((link) => {
+    menu.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", () => {
         if (mobileQuery.matches) closeMenu();
       });
