@@ -553,7 +553,7 @@
 
       const timeline = gsap.timeline({
         paused: true,
-        defaults: { ease: "power3.out" },
+        defaults: { ease: "power4.out" },
         onReverseComplete: () => {
           gsap.set(list, { display: "none" });
           trigger?.setAttribute("aria-expanded", "false");
@@ -569,7 +569,7 @@
         {
           opacity: 1,
           x: 0,
-          duration: 0.35,
+          duration: 0.5,
         },
         0,
       );
@@ -580,7 +580,7 @@
           { rotate: 0 },
           {
             rotate: 180,
-            duration: 0.35,
+            duration: 0.5,
           },
           0,
         );
