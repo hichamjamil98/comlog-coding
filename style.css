@@ -147,16 +147,6 @@ body.is--locked {
     width: max-content;
     min-width: 100%;
   }
-
-  .dropdown:hover > .dropdown--list,
-  .dropdown:focus-within > .dropdown--list {
-    display: flex;
-  }
-
-  .dropdown:hover .drop--arrow,
-  .dropdown:focus-within .drop--arrow {
-    transform: rotate(180deg);
-  }
 }
 
 /* ==========================================================================

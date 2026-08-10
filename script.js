@@ -456,6 +456,7 @@
 
   function initDropdowns(mobileQuery) {
     const dropdowns = [...document.querySelectorAll(".dropdown")];
+    const desktopTimelines = new WeakMap();
 
     const closeDropdown = (dropdown, immediate = false) => {
       const { trigger, list, arrow } = getDropdownParts(dropdown);
@@ -464,6 +465,13 @@
       dropdown.classList.remove("is--open");
       trigger?.setAttribute("aria-expanded", "false");
       list.setAttribute("aria-hidden", "true");
+
+      const desktopTimeline = desktopTimelines.get(dropdown);
+      if (desktopTimeline) {
+        desktopTimeline.pause(0);
+        gsap.set(list, { display: "none", clearProps: "opacity,transform" });
+        if (arrow) gsap.set(arrow, { clearProps: "transform" });
+      }
 
       gsap.killTweensOf([list, arrow].filter(Boolean));
 
@@ -539,6 +547,49 @@
         : openDropdown(dropdown);
     };
 
+    const createDesktopTimeline = (dropdown) => {
+      const { trigger, list, arrow } = getDropdownParts(dropdown);
+      if (!list) return null;
+
+      const timeline = gsap.timeline({
+        paused: true,
+        defaults: { ease: "power3.out" },
+        onReverseComplete: () => {
+          gsap.set(list, { display: "none" });
+          trigger?.setAttribute("aria-expanded", "false");
+          list.setAttribute("aria-hidden", "true");
+        },
+      });
+
+      timeline.set(list, { display: "flex" });
+
+      timeline.fromTo(
+        list,
+        { opacity: 0, x: "1.5rem" },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.35,
+        },
+        0,
+      );
+
+      if (arrow) {
+        timeline.fromTo(
+          arrow,
+          { rotate: 0 },
+          {
+            rotate: 180,
+            duration: 0.35,
+          },
+          0,
+        );
+      }
+
+      desktopTimelines.set(dropdown, timeline);
+      return timeline;
+    };
+
     dropdowns.forEach((dropdown, index) => {
       const { trigger, list } = getDropdownParts(dropdown);
       if (!trigger || !list) return;
@@ -551,6 +602,21 @@
       trigger.setAttribute("aria-expanded", "false");
       trigger.setAttribute("aria-controls", list.id);
       list.setAttribute("aria-hidden", "true");
+
+      const desktopTimeline = createDesktopTimeline(dropdown);
+
+      dropdown.addEventListener("pointerenter", () => {
+        if (mobileQuery.matches || !desktopTimeline) return;
+
+        trigger.setAttribute("aria-expanded", "true");
+        list.setAttribute("aria-hidden", "false");
+        desktopTimeline.play();
+      });
+
+      dropdown.addEventListener("pointerleave", () => {
+        if (mobileQuery.matches || !desktopTimeline) return;
+        desktopTimeline.reverse();
+      });
 
       trigger.addEventListener("click", (event) => {
         if (!mobileQuery.matches) return;
