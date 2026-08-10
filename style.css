@@ -163,15 +163,13 @@ body.is--locked {
   display: block;
   width: 100%;
   height: auto;
-  transform-origin: center;
-  will-change: transform, opacity;
+  will-change: opacity;
 }
 
 .menu--to-close {
   position: absolute;
   inset: 0;
   opacity: 0;
-  transform: scale(0.75) rotate(-90deg);
   pointer-events: none;
 }
 
@@ -206,6 +204,7 @@ body.is--locked {
     pointer-events: none;
     overflow-y: auto;
     overscroll-behavior: contain;
+    will-change: transform, opacity;
   }
 
   .nav--menu.is--open {

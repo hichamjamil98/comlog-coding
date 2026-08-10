@@ -538,7 +538,10 @@
       gsap.killTweensOf([list, arrow].filter(Boolean));
 
       if (!animate) {
-        gsap.set(list, { display: "flex", clearProps: "height,overflow" });
+        gsap.set(list, {
+          display: "flex",
+          clearProps: "height,overflow,opacity,x,transform",
+        });
         if (arrow) gsap.set(arrow, { rotate: 180 });
         return;
       }
@@ -569,6 +572,8 @@
 
     const openAllMobileDropdowns = () => {
       dropdowns.forEach((dropdown) => {
+        const desktopTimeline = desktopTimelines.get(dropdown);
+        desktopTimeline?.pause(0);
         openDropdown(dropdown, { exclusive: false, animate: false });
       });
     };
@@ -708,13 +713,17 @@
       timeline = gsap.timeline({
         onComplete: () => {
           menu.classList.remove("is--open");
-          gsap.set(menu, { display: "none", clearProps: "opacity" });
+          gsap.set(menu, {
+            display: "none",
+            clearProps: "opacity,x,transform,pointerEvents",
+          });
         },
       });
 
       timeline.to(menu, {
+        x: "100vw",
         opacity: 0,
-        duration: 0.3,
+        duration: 0.35,
         ease: "power2.inOut",
       });
 
@@ -723,8 +732,6 @@
           openIcon,
           {
             opacity: 1,
-            rotate: 0,
-            scale: 1,
             duration: 0.3,
           },
           0,
@@ -736,8 +743,6 @@
           closeIcon,
           {
             opacity: 0,
-            rotate: -90,
-            scale: 0.75,
             duration: 0.25,
           },
           0,
@@ -771,7 +776,10 @@
         list?.setAttribute("aria-hidden", "false");
 
         if (list)
-          gsap.set(list, { display: "flex", clearProps: "height,overflow" });
+          gsap.set(list, {
+            display: "flex",
+            clearProps: "height,overflow,opacity,x,transform",
+          });
         if (arrow) gsap.set(arrow, { rotate: 180 });
       });
 
@@ -784,10 +792,11 @@
         })
         .fromTo(
           menu,
-          { opacity: 0 },
+          { x: "100vw", opacity: 0 },
           {
+            x: 0,
             opacity: 1,
-            duration: 0.35,
+            duration: 0.4,
             ease: "power2.out",
           },
         );
@@ -797,8 +806,6 @@
           openIcon,
           {
             opacity: 0,
-            rotate: 90,
-            scale: 0.75,
             duration: 0.25,
           },
           0,
@@ -810,8 +817,6 @@
           closeIcon,
           {
             opacity: 1,
-            rotate: 0,
-            scale: 1,
             duration: 0.3,
           },
           0,
