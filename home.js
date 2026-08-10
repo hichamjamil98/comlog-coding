@@ -535,13 +535,21 @@
       };
 
       const swiper = new Swiper(slider, {
-        slidesPerView: "auto",
+        slidesPerView: 1,
+        slidesPerGroup: 1,
         spaceBetween: getSpacing(),
         speed: 750,
         watchOverflow: false,
         observer: true,
         observeParents: true,
         resistanceRatio: 0.75,
+
+        breakpoints: {
+          992: {
+            slidesPerView: 3,
+            slidesPerGroup: 1,
+          },
+        },
 
         keyboard: {
           enabled: true,
