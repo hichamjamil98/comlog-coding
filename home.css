@@ -120,6 +120,7 @@ html:not(.w-editor) body:not(.is-loading) .navbar {
 
 /* ==========================================================================
    SERVICES CARD HOVER — DESKTOP ONLY
+   Motion is handled by GSAP in home.js
 ========================================================================== */
 
 @media screen and (min-width: 992px) and (hover: hover) and (pointer: fine) {
@@ -131,35 +132,26 @@ html:not(.w-editor) body:not(.is-loading) .navbar {
     overflow: hidden;
   }
 
-  .swiper-slide.is--services .service--image img {
-    transform: scale(1);
-    transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  .swiper-slide.is--services .image--absolute100 {
+    transform-origin: center center;
     will-change: transform;
   }
 
   .swiper-slide.is--services .service--card-hover {
-    opacity: 0;
-    visibility: hidden;
     pointer-events: none;
-    transition:
-      opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-      visibility 0s linear 0.45s;
+  }
+
+  .swiper-slide.is--services .heading-style-76 {
+    will-change: transform, opacity;
+  }
+
+  .swiper-slide.is--services .service--content {
+    overflow: hidden;
+    will-change: height;
+  }
+
+  .swiper-slide.is--services .service--card-bg {
     will-change: opacity;
-  }
-
-  .swiper-slide.is--services:hover .service--card-hover,
-  .swiper-slide.is--services:focus-within .service--card-hover {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transition:
-      opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-      visibility 0s linear 0s;
-  }
-
-  .swiper-slide.is--services:hover .service--image img,
-  .swiper-slide.is--services:focus-within .service--image img {
-    transform: scale(1.045);
   }
 }
 
@@ -235,8 +227,10 @@ html:not(.w-editor) body:not(.is-loading) .navbar {
     visibility: visible !important;
   }
 
-  .swiper-slide.is--services .service--image img,
-  .swiper-slide.is--services .service--card-hover {
+  .swiper-slide.is--services .image--absolute100,
+  .swiper-slide.is--services .heading-style-76,
+  .swiper-slide.is--services .service--content,
+  .swiper-slide.is--services .service--card-bg {
     transition: none !important;
   }
 }

@@ -8,6 +8,7 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     initLoadingScreen();
+    initServicesHover();
 
     if (typeof Swiper === "undefined") {
       console.warn("Comlog Home: Swiper is missing.");
@@ -310,6 +311,121 @@
   /* =========================================================================
      SERVICES SLIDER
   ========================================================================= */
+
+  function initServicesHover() {
+    if (typeof window.gsap === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const gsap = window.gsap;
+    const desktopQuery = window.matchMedia(
+      "(min-width: 992px) and (hover: hover) and (pointer: fine)",
+    );
+    const ease = "power4.out";
+    const duration = 0.5;
+
+    document.querySelectorAll(".swiper-slide.is--services").forEach((slide) => {
+      const cardHover = slide.querySelector(".service--card-hover");
+      const heading = slide.querySelector(".heading-style-76");
+      const content = slide.querySelector(".service--content");
+      const cardBg = slide.querySelector(".service--card-bg");
+      const image = slide.querySelector(".image--absolute100");
+
+      if (!cardHover && !heading && !content && !cardBg && !image) return;
+
+      const setDesktopResting = () => {
+        if (heading) gsap.set(heading, { opacity: 0, y: "-1rem" });
+        if (content) gsap.set(content, { height: 0, overflow: "hidden" });
+        if (cardBg) gsap.set(cardBg, { opacity: 0 });
+        if (image) gsap.set(image, { scale: 1 });
+        if (cardHover) gsap.set(cardHover, { pointerEvents: "none" });
+      };
+
+      const clearDesktopState = () => {
+        [heading, content, cardBg, image, cardHover].filter(Boolean).forEach((element) => {
+          gsap.set(element, { clearProps: "all" });
+        });
+      };
+
+      const timeline = gsap.timeline({
+        paused: true,
+        defaults: { ease, duration },
+        onReverseComplete: () => {
+          if (!desktopQuery.matches) return;
+          if (cardHover) gsap.set(cardHover, { pointerEvents: "none" });
+          if (content) gsap.set(content, { overflow: "hidden" });
+        },
+      });
+
+      if (cardHover) {
+        timeline.set(cardHover, { pointerEvents: "auto" }, 0);
+      }
+
+      if (cardBg) {
+        timeline.fromTo(cardBg, { opacity: 0 }, { opacity: 1 }, 0);
+      }
+
+      if (heading) {
+        timeline.fromTo(
+          heading,
+          { opacity: 0, y: "-1rem" },
+          { opacity: 1, y: 0 },
+          0,
+        );
+      }
+
+      if (content) {
+        timeline.fromTo(
+          content,
+          { height: 0 },
+          {
+            height: "auto",
+            onComplete: () => {
+              if (desktopQuery.matches) {
+                gsap.set(content, { overflow: "visible" });
+              }
+            },
+          },
+          0,
+        );
+      }
+
+      if (image) {
+        timeline.fromTo(image, { scale: 1 }, { scale: 1.1 }, 0);
+      }
+
+      const play = () => {
+        if (!desktopQuery.matches) return;
+        if (content) gsap.set(content, { overflow: "hidden" });
+        timeline.play();
+      };
+
+      const reverse = () => {
+        if (!desktopQuery.matches) return;
+        if (content) gsap.set(content, { overflow: "hidden" });
+        timeline.reverse();
+      };
+
+      slide.addEventListener("pointerenter", play);
+      slide.addEventListener("pointerleave", reverse);
+      slide.addEventListener("focusin", play);
+      slide.addEventListener("focusout", (event) => {
+        if (!slide.contains(event.relatedTarget)) reverse();
+      });
+
+      const syncBreakpoint = () => {
+        timeline.pause(0);
+
+        if (desktopQuery.matches) {
+          setDesktopResting();
+        } else {
+          clearDesktopState();
+        }
+      };
+
+      syncBreakpoint();
+      desktopQuery.addEventListener("change", syncBreakpoint);
+    });
+  }
 
   function initServicesSlider() {
     const sliders = document.querySelectorAll(".swiper.is--services");
