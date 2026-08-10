@@ -48,7 +48,7 @@
 
 .karriere--popup-close,
 .career--popup-close {
-  position: relative;
+  position: absolute;
   z-index: 2;
   cursor: pointer;
   pointer-events: auto;
