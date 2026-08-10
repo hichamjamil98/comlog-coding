@@ -32,29 +32,6 @@ body.is--locked {
    BUTTON HOVER
 ========================================================================== */
 
-.btn-animate-chars__text,
-[data-button-animate-chars] {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  height: 1.2em;
-  line-height: 1.2;
-  overflow: hidden;
-  vertical-align: middle;
-  isolation: isolate;
-}
-
-.btn-animate-chars__text span,
-[data-button-animate-chars] span {
-  position: relative;
-  display: inline-block;
-  line-height: 1.2;
-  transform: translateY(0);
-  text-shadow: 0 1.4em currentColor;
-  transition: transform 0.55s cubic-bezier(0.625, 0.05, 0, 1);
-  will-change: transform;
-}
-
 .btn--arrow,
 .drop--arrow {
   transform-origin: center;
@@ -70,20 +47,6 @@ body.is--locked {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .button:hover .btn-animate-chars__text span,
-  .button:hover [data-button-animate-chars] span,
-  .btn:hover .btn-animate-chars__text span,
-  .btn:hover [data-button-animate-chars] span,
-
-  /*
-    Only animate the dropdown trigger.
-    Using .btn--drop:hover would animate every link inside .drop--menu.
-  */
-  .btn--drop > .trigger:hover .btn-animate-chars__text span,
-  .btn--drop > .trigger:hover [data-button-animate-chars] span {
-    transform: translateY(-1.4em);
-  }
-
   .button:hover .btn--arrow,
   .btn:hover .btn--arrow {
     transform: translateX(0.2rem);
@@ -92,8 +55,21 @@ body.is--locked {
 
 /* ==========================================================================
    LOAD / SCROLL
+   Supports bare attrs (load) and animation="load"
 ========================================================================== */
 
+[load],
+[load-up],
+[load-left],
+[load-right],
+[load-stagger] > *,
+[load-split],
+[fade],
+[fade-up],
+[fade-left],
+[fade-right],
+[fade-stagger] > *,
+[fade-split],
 [animation="load"],
 [animation="load-up"],
 [animation="load-left"],
@@ -125,6 +101,7 @@ body.is--locked {
    ROD / LINE
 ========================================================================== */
 
+[rod],
 [animation="rod"] {
   transform-origin: left center;
   will-change: transform;
@@ -271,6 +248,7 @@ body.is--locked {
     transition-duration: 0.01ms !important;
   }
 
+  [rod],
   [animation="rod"] {
     transform: none !important;
   }

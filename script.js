@@ -20,14 +20,59 @@
     const ease = "power4.out";
 
     resetNavigationState(mobileQuery);
-    initButtonCharacters();
-    initLoadAnimations(ease);
-    initScrollAnimations(ease);
-    initRodAnimation();
+
+    const loadTimeline = gsap.timeline({
+      defaults: { ease },
+      delay: 0.08,
+    });
+
+    initLoad(loadTimeline);
+    initLoadUp(loadTimeline);
+    initLoadLeft(loadTimeline);
+    initLoadRight(loadTimeline);
+    initLoadStagger(loadTimeline);
+    initLoadSplit(loadTimeline);
+
+    initFade(ease);
+    initFadeUp(ease);
+    initFadeLeft(ease);
+    initFadeRight(ease);
+    initFadeStagger(ease);
+    initFadeSplit(ease);
+
+    initRod();
     initParallax();
     initDropdowns(mobileQuery);
     initMobileMenu(mobileQuery);
   });
+
+  /* =========================================================================
+     HELPERS
+  ========================================================================= */
+
+  function animElements(name) {
+    return gsap.utils.toArray(`[${name}], [animation="${name}"]`);
+  }
+
+  function prepareSplitLine(element, prefix) {
+    const readyKey = `${prefix.replace(/-/g, "")}Ready`;
+
+    if (element.dataset[readyKey] === "true") {
+      return element.querySelector(`.${prefix}__line`);
+    }
+
+    const content = element.innerHTML.trim();
+    if (!content) return null;
+
+    element.innerHTML = `
+      <span class="${prefix}__line-mask">
+        <span class="${prefix}__line">${content}</span>
+      </span>
+    `;
+
+    element.dataset[readyKey] = "true";
+    return element.querySelector(`.${prefix}__line`);
+  }
 
   /* =========================================================================
      NAVIGATION RESET
@@ -61,64 +106,88 @@
   }
 
   /* =========================================================================
-     BUTTON CHARACTER HOVER
+     LOAD ANIMATIONS
+     Supports: load  OR  animation="load"
   ========================================================================= */
 
-  function initButtonCharacters() {
-    const elements = document.querySelectorAll(
-      ".btn-animate-chars__text, [data-button-animate-chars]",
+  function initLoad(timeline) {
+    const elements = animElements("load");
+    if (!elements.length) return;
+
+    timeline.fromTo(
+      elements,
+      { opacity: 0, y: "1rem" },
+      {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        duration: 0.85,
+        stagger: 0.08,
+        clearProps: "transform,opacity",
+      },
+      0,
     );
-
-    elements.forEach((element) => {
-      if (element.dataset.charsReady === "true") return;
-
-      const text = element.textContent || "";
-      element.textContent = "";
-      element.setAttribute("aria-label", text.trim());
-
-      [...text].forEach((character, index) => {
-        const span = document.createElement("span");
-        span.setAttribute("aria-hidden", "true");
-        span.textContent = character === " " ? "\u00A0" : character;
-        span.style.transitionDelay = `${index * 0.012}s`;
-        element.appendChild(span);
-      });
-
-      element.dataset.charsReady = "true";
-    });
   }
 
-  /* =========================================================================
-     LOAD ANIMATIONS
-  ========================================================================= */
+  function initLoadUp(timeline) {
+    const elements = animElements("load-up");
+    if (!elements.length) return;
 
-  function initLoadAnimations(ease) {
-    const timeline = gsap.timeline({
-      defaults: { ease },
-      delay: 0.08,
-    });
+    timeline.fromTo(
+      elements,
+      { opacity: 0, y: "2rem" },
+      {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        duration: 0.85,
+        stagger: 0.08,
+        clearProps: "transform,opacity",
+      },
+      0.04,
+    );
+  }
 
-    addLoadTween(timeline, '[animation="load"]', {
-      opacity: 0,
-      y: "1rem",
-    }, 0);
+  function initLoadLeft(timeline) {
+    const elements = animElements("load-left");
+    if (!elements.length) return;
 
-    addLoadTween(timeline, '[animation="load-up"]', {
-      opacity: 0,
-      y: "2rem",
-    }, 0.04);
+    timeline.fromTo(
+      elements,
+      { opacity: 0, x: "2rem" },
+      {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        duration: 0.85,
+        stagger: 0.08,
+        clearProps: "transform,opacity",
+      },
+      0.04,
+    );
+  }
 
-    addLoadTween(timeline, '[animation="load-left"]', {
-      opacity: 0,
-      x: "2rem",
-    }, 0.04);
+  function initLoadRight(timeline) {
+    const elements = animElements("load-right");
+    if (!elements.length) return;
 
-    addLoadTween(timeline, '[animation="load-right"]', {
-      opacity: 0,
-      x: "-2rem",
-    }, 0.04);
+    timeline.fromTo(
+      elements,
+      { opacity: 0, x: "-2rem" },
+      {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        duration: 0.85,
+        stagger: 0.08,
+        clearProps: "transform,opacity",
+      },
+      0.04,
+    );
+  }
 
-    document.querySelectorAll('[animation="load-stagger"]').forEach((parent) => {
+  function initLoadStagger(timeline) {
+    animElements("load-stagger").forEach((parent) => {
       const children = [...parent.children];
       if (!children.length) return;
 
@@ -135,8 +204,10 @@
         0.12,
       );
     });
+  }
 
-    document.querySelectorAll('[animation="load-split"]').forEach((element) => {
+  function initLoadSplit(timeline) {
+    animElements("load-split").forEach((element) => {
       const line = prepareSplitLine(element, "load-split");
       if (!line) return;
 
@@ -154,38 +225,111 @@
     });
   }
 
-  function addLoadTween(timeline, selector, fromVars, position) {
-    const elements = document.querySelectorAll(selector);
-    if (!elements.length) return;
-
-    timeline.fromTo(
-      elements,
-      fromVars,
-      {
-        opacity: 1,
-        x: 0,
-        y: 0,
-        duration: 0.85,
-        stagger: 0.08,
-        clearProps: "transform,opacity",
-      },
-      position,
-    );
-  }
-
   /* =========================================================================
      SCROLL ANIMATIONS
+     Supports: fade  OR  animation="fade"
   ========================================================================= */
 
-  function initScrollAnimations(ease) {
+  function initFade(ease) {
     if (typeof ScrollTrigger === "undefined") return;
 
-    initFade('[animation="fade"]', { opacity: 0, y: "1rem" }, ease);
-    initFade('[animation="fade-up"]', { opacity: 0, y: "2rem" }, ease);
-    initFade('[animation="fade-left"]', { opacity: 0, x: "2rem" }, ease);
-    initFade('[animation="fade-right"]', { opacity: 0, x: "-2rem" }, ease);
+    animElements("fade").forEach((element) => {
+      gsap.fromTo(
+        element,
+        { opacity: 0, y: "1rem" },
+        {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          duration: 0.85,
+          ease,
+          clearProps: "transform,opacity",
+          scrollTrigger: {
+            trigger: element,
+            start: "top 86%",
+            once: true,
+          },
+        },
+      );
+    });
+  }
 
-    document.querySelectorAll('[animation="fade-stagger"]').forEach((parent) => {
+  function initFadeUp(ease) {
+    if (typeof ScrollTrigger === "undefined") return;
+
+    animElements("fade-up").forEach((element) => {
+      gsap.fromTo(
+        element,
+        { opacity: 0, y: "2rem" },
+        {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          duration: 0.85,
+          ease,
+          clearProps: "transform,opacity",
+          scrollTrigger: {
+            trigger: element,
+            start: "top 86%",
+            once: true,
+          },
+        },
+      );
+    });
+  }
+
+  function initFadeLeft(ease) {
+    if (typeof ScrollTrigger === "undefined") return;
+
+    animElements("fade-left").forEach((element) => {
+      gsap.fromTo(
+        element,
+        { opacity: 0, x: "2rem" },
+        {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          duration: 0.85,
+          ease,
+          clearProps: "transform,opacity",
+          scrollTrigger: {
+            trigger: element,
+            start: "top 86%",
+            once: true,
+          },
+        },
+      );
+    });
+  }
+
+  function initFadeRight(ease) {
+    if (typeof ScrollTrigger === "undefined") return;
+
+    animElements("fade-right").forEach((element) => {
+      gsap.fromTo(
+        element,
+        { opacity: 0, x: "-2rem" },
+        {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          duration: 0.85,
+          ease,
+          clearProps: "transform,opacity",
+          scrollTrigger: {
+            trigger: element,
+            start: "top 86%",
+            once: true,
+          },
+        },
+      );
+    });
+  }
+
+  function initFadeStagger(ease) {
+    if (typeof ScrollTrigger === "undefined") return;
+
+    animElements("fade-stagger").forEach((parent) => {
       const children = [...parent.children];
       if (!children.length) return;
 
@@ -207,8 +351,12 @@
         },
       );
     });
+  }
 
-    document.querySelectorAll('[animation="fade-split"]').forEach((element) => {
+  function initFadeSplit(ease) {
+    if (typeof ScrollTrigger === "undefined") return;
+
+    animElements("fade-split").forEach((element) => {
       const line = prepareSplitLine(element, "fade-split");
       if (!line) return;
 
@@ -231,56 +379,13 @@
     });
   }
 
-  function initFade(selector, fromVars, ease) {
-    document.querySelectorAll(selector).forEach((element) => {
-      gsap.fromTo(
-        element,
-        fromVars,
-        {
-          opacity: 1,
-          x: 0,
-          y: 0,
-          duration: 0.85,
-          ease,
-          clearProps: "transform,opacity",
-          scrollTrigger: {
-            trigger: element,
-            start: "top 86%",
-            once: true,
-          },
-        },
-      );
-    });
-  }
-
-  function prepareSplitLine(element, prefix) {
-    const readyKey = `${prefix.replace(/-/g, "")}Ready`;
-
-    if (element.dataset[readyKey] === "true") {
-      return element.querySelector(`.${prefix}__line`);
-    }
-
-    const content = element.innerHTML.trim();
-    if (!content) return null;
-
-    element.innerHTML = `
-      <span class="${prefix}__line-mask">
-        <span class="${prefix}__line">${content}</span>
-      </span>
-    `;
-
-    element.dataset[readyKey] = "true";
-    return element.querySelector(`.${prefix}__line`);
-  }
-
-
   /* =========================================================================
      ROD / LINE ANIMATION
-     animation="rod"
+     Supports: rod  OR  animation="rod"
   ========================================================================= */
 
-  function initRodAnimation() {
-    const elements = gsap.utils.toArray('[animation="rod"]');
+  function initRod() {
+    const elements = animElements("rod");
     if (!elements.length) return;
 
     if (
@@ -294,9 +399,7 @@
     elements.forEach((element) => {
       gsap.fromTo(
         element,
-        {
-          scaleX: 0,
-        },
+        { scaleX: 0 },
         {
           scaleX: 1,
           duration: 1,
