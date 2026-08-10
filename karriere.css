@@ -71,9 +71,8 @@
   Below 992px:      1 slide, move by 1
 
   Spacing:
-  Desktop: 1.5rem
-  Tablet:  1rem
-  Mobile:  0
+  Desktop (≥992px): 1.5rem
+  Below 992px:      1rem
 */
 
 /* ==========================================================================

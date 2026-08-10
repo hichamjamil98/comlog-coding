@@ -29,9 +29,8 @@
     const width = window.innerWidth;
 
     if (width >= 992) return remToPx(1.5);
-    if (width >= 768) return remToPx(1);
 
-    return 0;
+    return remToPx(1);
   }
 
   function getNavigation(slider) {
