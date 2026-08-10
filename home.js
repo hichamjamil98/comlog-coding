@@ -262,7 +262,9 @@
   }
 
   /**
-   * Returns the navigation buttons located in the same section as the slider.
+   * Returns the navigation buttons for a slider.
+   * Looks in the same section first, then previous sibling blocks
+   * (for full-bleed swipers placed outside their header section).
    *
    * @param {Element} slider
    * @param {string} previousSelector
@@ -270,12 +272,29 @@
    * @returns {{previous: Element|null, next: Element|null}}
    */
   function getSectionNavigation(slider, previousSelector, nextSelector) {
-    const section = slider.closest(".section") || slider.parentElement;
+    const scopes = [];
 
-    return {
-      previous: section?.querySelector(previousSelector) || null,
-      next: section?.querySelector(nextSelector) || null,
-    };
+    const section = slider.closest(".section");
+    if (section) scopes.push(section);
+
+    let sibling = slider.previousElementSibling;
+    while (sibling) {
+      scopes.push(sibling);
+      sibling = sibling.previousElementSibling;
+    }
+
+    if (slider.parentElement) scopes.push(slider.parentElement);
+
+    for (const scope of scopes) {
+      const previous = scope.querySelector?.(previousSelector) || null;
+      const next = scope.querySelector?.(nextSelector) || null;
+
+      if (previous || next) {
+        return { previous, next };
+      }
+    }
+
+    return { previous: null, next: null };
   }
 
   /**
@@ -423,9 +442,18 @@
 
       const navigation = getSectionNavigation(
         slider,
-        ".swiper--button.is--previous.is--red",
-        ".swiper--button.is--next.is--red",
+        ".swiper--button-wrap .swiper--button.is--previous",
+        ".swiper--button-wrap .swiper--button.is--next",
       );
+
+      // Fallback: buttons live in the home-services header section
+      if (!navigation.previous && !navigation.next) {
+        const homeServices = document.querySelector(".section.is--home-services");
+        navigation.previous =
+          homeServices?.querySelector(".swiper--button.is--previous") || null;
+        navigation.next =
+          homeServices?.querySelector(".swiper--button.is--next") || null;
+      }
 
       const getSpacing = () => {
         const width = window.innerWidth;
@@ -455,6 +483,12 @@
           prevEl: navigation.previous,
           nextEl: navigation.next,
         },
+      });
+
+      [navigation.previous, navigation.next].filter(Boolean).forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.preventDefault();
+        });
       });
 
       bindResponsiveSpacing(swiper, getSpacing);
