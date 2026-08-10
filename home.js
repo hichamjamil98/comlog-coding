@@ -349,7 +349,9 @@
       const content = slide.querySelector(".service--content");
       const cardBg = slide.querySelector(".service--card-bg");
       const image = slide.querySelector(".image--absolute100");
-      const targets = [heading, content, cardBg, image, cardHover].filter(Boolean);
+      const targets = [heading, content, cardBg, image, cardHover].filter(
+        Boolean,
+      );
 
       if (!targets.length) return;
 
@@ -448,7 +450,9 @@
 
       // Fallback: buttons live in the home-services header section
       if (!navigation.previous && !navigation.next) {
-        const homeServices = document.querySelector(".section.is--home-services");
+        const homeServices = document.querySelector(
+          ".section.is--home-services",
+        );
         navigation.previous =
           homeServices?.querySelector(".swiper--button.is--previous") || null;
         navigation.next =
@@ -493,11 +497,13 @@
         },
       });
 
-      [navigation.previous, navigation.next].filter(Boolean).forEach((button) => {
-        button.addEventListener("click", (event) => {
-          event.preventDefault();
+      [navigation.previous, navigation.next]
+        .filter(Boolean)
+        .forEach((button) => {
+          button.addEventListener("click", (event) => {
+            event.preventDefault();
+          });
         });
-      });
 
       bindResponsiveSpacing(swiper, getSpacing);
     });
@@ -532,7 +538,6 @@
         slidesPerView: "auto",
         spaceBetween: getSpacing(),
         speed: 750,
-        grabCursor: true,
         watchOverflow: false,
         observer: true,
         observeParents: true,
