@@ -322,6 +322,7 @@
     );
     const ease = "power4.out";
     const duration = 0.5;
+    const tweenVars = { duration, ease, overwrite: "auto" };
 
     document.querySelectorAll(".swiper-slide.is--services").forEach((slide) => {
       const cardHover = slide.querySelector(".service--card-hover");
@@ -329,8 +330,9 @@
       const content = slide.querySelector(".service--content");
       const cardBg = slide.querySelector(".service--card-bg");
       const image = slide.querySelector(".image--absolute100");
+      const targets = [heading, content, cardBg, image, cardHover].filter(Boolean);
 
-      if (!cardHover && !heading && !content && !cardBg && !image) return;
+      if (!targets.length) return;
 
       const setDesktopResting = () => {
         if (heading) gsap.set(heading, { opacity: 0, y: "-1rem" });
@@ -341,80 +343,66 @@
       };
 
       const clearDesktopState = () => {
-        [heading, content, cardBg, image, cardHover].filter(Boolean).forEach((element) => {
+        gsap.killTweensOf(targets);
+        targets.forEach((element) => {
           gsap.set(element, { clearProps: "all" });
         });
       };
 
-      const timeline = gsap.timeline({
-        paused: true,
-        defaults: { ease, duration },
-        onReverseComplete: () => {
-          if (!desktopQuery.matches) return;
-          if (cardHover) gsap.set(cardHover, { pointerEvents: "none" });
-          if (content) gsap.set(content, { overflow: "hidden" });
-        },
-      });
+      const openHover = () => {
+        if (!desktopQuery.matches) return;
 
-      if (cardHover) {
-        timeline.set(cardHover, { pointerEvents: "auto" }, 0);
-      }
+        if (cardHover) gsap.set(cardHover, { pointerEvents: "auto" });
+        if (content) gsap.set(content, { overflow: "hidden" });
 
-      if (cardBg) {
-        timeline.fromTo(cardBg, { opacity: 0 }, { opacity: 1 }, 0);
-      }
-
-      if (heading) {
-        timeline.fromTo(
-          heading,
-          { opacity: 0, y: "-1rem" },
-          { opacity: 1, y: 0 },
-          0,
-        );
-      }
-
-      if (content) {
-        timeline.fromTo(
-          content,
-          { height: 0 },
-          {
+        if (cardBg) gsap.to(cardBg, { opacity: 1, ...tweenVars });
+        if (heading) gsap.to(heading, { opacity: 1, y: 0, ...tweenVars });
+        if (content) {
+          gsap.to(content, {
             height: "auto",
+            ...tweenVars,
             onComplete: () => {
               if (desktopQuery.matches) {
                 gsap.set(content, { overflow: "visible" });
               }
             },
-          },
-          0,
-        );
-      }
-
-      if (image) {
-        timeline.fromTo(image, { scale: 1 }, { scale: 1.1 }, 0);
-      }
-
-      const play = () => {
-        if (!desktopQuery.matches) return;
-        if (content) gsap.set(content, { overflow: "hidden" });
-        timeline.play();
+          });
+        }
+        if (image) gsap.to(image, { scale: 1.1, ...tweenVars });
       };
 
-      const reverse = () => {
+      const closeHover = () => {
         if (!desktopQuery.matches) return;
+
         if (content) gsap.set(content, { overflow: "hidden" });
-        timeline.reverse();
+
+        if (cardBg) gsap.to(cardBg, { opacity: 0, ...tweenVars });
+        if (heading) {
+          gsap.to(heading, {
+            opacity: 0,
+            y: "-1rem",
+            ...tweenVars,
+            onComplete: () => {
+              if (desktopQuery.matches && cardHover) {
+                gsap.set(cardHover, { pointerEvents: "none" });
+              }
+            },
+          });
+        } else if (cardHover) {
+          gsap.set(cardHover, { pointerEvents: "none" });
+        }
+        if (content) gsap.to(content, { height: 0, ...tweenVars });
+        if (image) gsap.to(image, { scale: 1, ...tweenVars });
       };
 
-      slide.addEventListener("pointerenter", play);
-      slide.addEventListener("pointerleave", reverse);
-      slide.addEventListener("focusin", play);
+      slide.addEventListener("pointerenter", openHover);
+      slide.addEventListener("pointerleave", closeHover);
+      slide.addEventListener("focusin", openHover);
       slide.addEventListener("focusout", (event) => {
-        if (!slide.contains(event.relatedTarget)) reverse();
+        if (!slide.contains(event.relatedTarget)) closeHover();
       });
 
       const syncBreakpoint = () => {
-        timeline.pause(0);
-
         if (desktopQuery.matches) {
           setDesktopResting();
         } else {
