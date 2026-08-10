@@ -718,19 +718,24 @@
 
     let open = false;
     let timeline = null;
+    let lockedScrollY = 0;
 
     trigger.setAttribute("role", "button");
     trigger.setAttribute("tabindex", "0");
     trigger.setAttribute("aria-expanded", "false");
 
     const lock = () => {
+      lockedScrollY = window.scrollY || window.pageYOffset || 0;
       document.documentElement.classList.add("is--locked");
       document.body.classList.add("is--locked");
+      document.body.style.top = `-${lockedScrollY}px`;
     };
 
     const unlock = () => {
       document.documentElement.classList.remove("is--locked");
       document.body.classList.remove("is--locked");
+      document.body.style.removeProperty("top");
+      window.scrollTo(0, lockedScrollY);
     };
 
     const closeMenu = (immediate = false) => {
@@ -739,23 +744,25 @@
 
       trigger.classList.remove("is--open");
       trigger.setAttribute("aria-expanded", "false");
-      navbar.classList.remove("is--menu-open");
-      unlock();
 
       if (immediate || !mobileQuery.matches) {
+        navbar.classList.remove("is--menu-open");
         menu.classList.remove("is--open");
         gsap.set(menu, { clearProps: "all" });
         gsap.set([openIcon, closeIcon].filter(Boolean), { clearProps: "all" });
+        unlock();
         return;
       }
 
       timeline = gsap.timeline({
         onComplete: () => {
           menu.classList.remove("is--open");
+          navbar.classList.remove("is--menu-open");
           gsap.set(menu, {
             display: "none",
             clearProps: "opacity,x,xPercent,transform,pointerEvents",
           });
+          unlock();
         },
       });
 
@@ -795,13 +802,13 @@
       open = true;
       timeline?.kill();
 
+      lock();
       trigger.classList.add("is--open");
       trigger.setAttribute("aria-expanded", "true");
       navbar.classList.add("is--menu-open");
       menu.classList.add("is--open");
       // Ensure fixed menu is viewport-relative, not trapped by a navbar transform.
       gsap.set(navbar, { clearProps: "transform" });
-      lock();
 
       document.querySelectorAll(".dropdown").forEach((dropdown) => {
         const list = dropdown.querySelector(":scope > .dropdown--list");

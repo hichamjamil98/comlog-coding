@@ -12,6 +12,13 @@ body.is--locked {
   overscroll-behavior: none;
 }
 
+body.is--locked {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
 /* ==========================================================================
    NAVBAR
 ========================================================================== */
@@ -186,7 +193,12 @@ body.is--locked {
   }
 
   .navbar.is--menu-open {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 10000;
+    width: 100%;
   }
 
   .navbar .container--nav,
