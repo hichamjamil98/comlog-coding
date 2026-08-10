@@ -54,24 +54,35 @@
     return gsap.utils.toArray(`[${name}], [animation="${name}"]`);
   }
 
-  function prepareSplitLine(element, prefix) {
+  function prepareSplitLines(element, prefix) {
     const readyKey = `${prefix.replace(/-/g, "")}Ready`;
 
     if (element.dataset[readyKey] === "true") {
-      return element.querySelector(`.${prefix}__line`);
+      return gsap.utils.toArray(element.querySelectorAll(`.${prefix}__line`));
     }
 
     const content = element.innerHTML.trim();
-    if (!content) return null;
+    if (!content) return [];
 
-    element.innerHTML = `
-      <span class="${prefix}__line-mask">
-        <span class="${prefix}__line">${content}</span>
-      </span>
-    `;
+    const segments = content
+      .split(/<br\s*\/?>/i)
+      .map((segment) => segment.trim())
+      .filter(Boolean);
+
+    if (!segments.length) return [];
+
+    element.innerHTML = segments
+      .map(
+        (segment) => `
+          <span class="${prefix}__line-mask">
+            <span class="${prefix}__line">${segment}</span>
+          </span>
+        `,
+      )
+      .join("");
 
     element.dataset[readyKey] = "true";
-    return element.querySelector(`.${prefix}__line`);
+    return gsap.utils.toArray(element.querySelectorAll(`.${prefix}__line`));
   }
 
   /* =========================================================================
@@ -207,22 +218,24 @@
   }
 
   function initLoadSplit(timeline) {
-    animElements("load-split").forEach((element) => {
-      const line = prepareSplitLine(element, "load-split");
-      if (!line) return;
+    const lines = animElements("load-split").flatMap((element) =>
+      prepareSplitLines(element, "load-split"),
+    );
 
-      timeline.fromTo(
-        line,
-        { yPercent: 110, opacity: 0 },
-        {
-          yPercent: 0,
-          opacity: 1,
-          duration: 0.95,
-          clearProps: "transform,opacity",
-        },
-        0.14,
-      );
-    });
+    if (!lines.length) return;
+
+    timeline.fromTo(
+      lines,
+      { yPercent: 110, opacity: 0 },
+      {
+        yPercent: 0,
+        opacity: 1,
+        duration: 0.95,
+        stagger: 0.08,
+        clearProps: "transform,opacity",
+      },
+      0.14,
+    );
   }
 
   /* =========================================================================
@@ -357,16 +370,17 @@
     if (typeof ScrollTrigger === "undefined") return;
 
     animElements("fade-split").forEach((element) => {
-      const line = prepareSplitLine(element, "fade-split");
-      if (!line) return;
+      const lines = prepareSplitLines(element, "fade-split");
+      if (!lines.length) return;
 
       gsap.fromTo(
-        line,
+        lines,
         { yPercent: 110, opacity: 0 },
         {
           yPercent: 0,
           opacity: 1,
           duration: 0.9,
+          stagger: 0.08,
           ease,
           clearProps: "transform,opacity",
           scrollTrigger: {
