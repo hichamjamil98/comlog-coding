@@ -75,16 +75,15 @@
   ========================================================================= */
 
   function initKarrierePopups() {
-    if (typeof window.gsap === "undefined") {
-      console.warn("Comlog Karriere: GSAP is missing.");
-      return;
-    }
-
-    const gsap = window.gsap;
+    const gsap = window.gsap || null;
     const ease = "power4.out";
     const duration = 0.5;
     const html = document.documentElement;
     const body = document.body;
+
+    if (!gsap) {
+      console.warn("Comlog Karriere: GSAP is missing. Popups will open without animation.");
+    }
 
     let activePopup = null;
     let closing = false;
@@ -99,21 +98,38 @@
       body.classList.remove("is--locked");
     };
 
+    const getPopupParts = (popup) => ({
+      content: popup.querySelector(".career--popup-content"),
+      bg: popup.querySelector(".career--popup-bg"),
+    });
+
+    const resetPopup = (popup) => {
+      const { content, bg } = getPopupParts(popup);
+
+      popup.classList.remove("is--open");
+      popup.style.display = "none";
+
+      if (gsap) {
+        if (content) gsap.set(content, { opacity: 0, y: "2rem" });
+        if (bg) gsap.set(bg, { opacity: 0 });
+      } else {
+        if (content) {
+          content.style.opacity = "0";
+          content.style.transform = "translateY(2rem)";
+        }
+        if (bg) bg.style.opacity = "0";
+      }
+    };
+
     const closePopup = (popup) => {
       if (!popup || closing) return;
       if (!popup.classList.contains("is--open") && activePopup !== popup) return;
 
       closing = true;
-
-      const content = popup.querySelector(".career--popup-content");
-      const bg = popup.querySelector(".career--popup-bg");
-      const targets = [content, bg].filter(Boolean);
-
-      gsap.killTweensOf(targets);
+      const { content, bg } = getPopupParts(popup);
 
       const finish = () => {
-        gsap.set(popup, { display: "none" });
-        popup.classList.remove("is--open");
+        resetPopup(popup);
         closing = false;
 
         if (activePopup === popup) {
@@ -122,13 +138,20 @@
         }
       };
 
+      if (!gsap) {
+        finish();
+        return;
+      }
+
+      const targets = [content, bg].filter(Boolean);
+      gsap.killTweensOf(targets);
+
       if (!targets.length) {
         finish();
         return;
       }
 
       let remaining = targets.length;
-
       const onComplete = () => {
         remaining -= 1;
         if (remaining <= 0) finish();
@@ -158,22 +181,31 @@
       if (!popup || closing) return;
 
       if (activePopup && activePopup !== popup) {
-        gsap.set(activePopup, { display: "none" });
-        activePopup.classList.remove("is--open");
-        gsap.killTweensOf(
-          activePopup.querySelectorAll(".career--popup-content, .career--popup-bg"),
-        );
+        resetPopup(activePopup);
+        if (gsap) {
+          gsap.killTweensOf(
+            activePopup.querySelectorAll(".career--popup-content, .career--popup-bg"),
+          );
+        }
       }
 
-      const content = popup.querySelector(".career--popup-content");
-      const bg = popup.querySelector(".career--popup-bg");
-
-      gsap.killTweensOf([content, bg].filter(Boolean));
+      const { content, bg } = getPopupParts(popup);
 
       activePopup = popup;
       popup.classList.add("is--open");
-      gsap.set(popup, { display: "flex" });
+      popup.style.display = "flex";
       lock();
+
+      if (!gsap) {
+        if (content) {
+          content.style.opacity = "1";
+          content.style.transform = "translateY(0)";
+        }
+        if (bg) bg.style.opacity = "1";
+        return;
+      }
+
+      gsap.killTweensOf([content, bg].filter(Boolean));
 
       if (content) {
         gsap.fromTo(
@@ -192,32 +224,32 @@
       }
     };
 
-    document.querySelectorAll(".career--item-slide").forEach((card) => {
-      const popup = card.querySelector(".career--popup");
-      const openTrigger = [...card.querySelectorAll(
-        '[data-wf--slot-item-button--variant="karriere"] a',
-      )].find((link) => !link.closest(".career--popup"));
-
-      if (!popup || !openTrigger) return;
-
-      gsap.set(popup, { display: "none" });
-
-      const content = popup.querySelector(".career--popup-content");
-      const bg = popup.querySelector(".career--popup-bg");
-      if (content) gsap.set(content, { opacity: 0, y: "2rem" });
-      if (bg) gsap.set(bg, { opacity: 0 });
-
-      openTrigger.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        openPopup(popup);
-      });
+    document.querySelectorAll(".career--popup").forEach((popup) => {
+      resetPopup(popup);
     });
 
     document.addEventListener("click", (event) => {
+      const openTrigger = event.target.closest(
+        'a[aria-label="zur stellenausschreibung"]',
+      );
+
+      if (openTrigger && !openTrigger.closest(".career--popup")) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const card =
+          openTrigger.closest(".career--item-slide") ||
+          openTrigger.closest(".swiper-slide");
+        const popup = card?.querySelector(".career--popup");
+
+        if (popup) openPopup(popup);
+        return;
+      }
+
       const closeButton = event.target.closest(
         ".karriere--popup-close, .career--popup-close",
       );
+
       if (closeButton) {
         const popup = closeButton.closest(".career--popup");
         if (!popup) return;
