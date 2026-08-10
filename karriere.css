@@ -29,10 +29,11 @@
 
 .career--popup {
   display: none;
+  z-index: 10000;
 }
 
 .career--popup.is--open {
-  display: flex;
+  display: flex !important;
 }
 
 .career--popup-bg {

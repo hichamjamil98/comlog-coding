@@ -82,7 +82,9 @@
     const body = document.body;
 
     if (!gsap) {
-      console.warn("Comlog Karriere: GSAP is missing. Popups will open without animation.");
+      console.warn(
+        "Comlog Karriere: GSAP is missing. Popups will open without animation.",
+      );
     }
 
     let activePopup = null;
@@ -102,6 +104,22 @@
       content: popup.querySelector(".career--popup-content"),
       bg: popup.querySelector(".career--popup-bg"),
     });
+
+    const findPopupForTrigger = (trigger) => {
+      const id = trigger.dataset.careerPopup;
+      if (id) {
+        return document.querySelector(`.career--popup[data-career-popup="${id}"]`);
+      }
+
+      const slide = trigger.closest(".swiper-slide");
+      return (
+        slide?.querySelector(".career--popup") ||
+        trigger.closest(".career--item-slide")?.parentElement?.querySelector(
+          ".career--popup",
+        ) ||
+        null
+      );
+    };
 
     const resetPopup = (popup) => {
       const { content, bg } = getPopupParts(popup);
@@ -184,7 +202,9 @@
         resetPopup(activePopup);
         if (gsap) {
           gsap.killTweensOf(
-            activePopup.querySelectorAll(".career--popup-content, .career--popup-bg"),
+            activePopup.querySelectorAll(
+              ".career--popup-content, .career--popup-bg",
+            ),
           );
         }
       }
@@ -216,15 +236,24 @@
       }
 
       if (bg) {
-        gsap.fromTo(
-          bg,
-          { opacity: 0 },
-          { opacity: 1, duration, ease },
-        );
+        gsap.fromTo(bg, { opacity: 0 }, { opacity: 1, duration, ease });
       }
     };
 
-    document.querySelectorAll(".career--popup").forEach((popup) => {
+    // Move popups to <body> so position:fixed isn't trapped by Swiper transforms.
+    document.querySelectorAll(".swiper-slide").forEach((slide, index) => {
+      const popup = slide.querySelector(".career--popup");
+      const trigger = slide.querySelector(
+        'a[aria-label="zur stellenausschreibung"]',
+      );
+
+      if (!popup) return;
+
+      const id = `career-popup-${index + 1}`;
+      popup.dataset.careerPopup = id;
+      if (trigger) trigger.dataset.careerPopup = id;
+
+      body.appendChild(popup);
       resetPopup(popup);
     });
 
@@ -237,11 +266,7 @@
         event.preventDefault();
         event.stopPropagation();
 
-        const card =
-          openTrigger.closest(".career--item-slide") ||
-          openTrigger.closest(".swiper-slide");
-        const popup = card?.querySelector(".career--popup");
-
+        const popup = findPopupForTrigger(openTrigger);
         if (popup) openPopup(popup);
         return;
       }
