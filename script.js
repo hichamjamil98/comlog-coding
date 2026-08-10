@@ -723,75 +723,12 @@
     trigger.setAttribute("tabindex", "0");
     trigger.setAttribute("aria-expanded", "false");
 
-    const closeMenu = (immediate = false) => {
-      open = false;
-      timeline?.kill();
-
-      trigger.classList.remove("is--open");
-      trigger.setAttribute("aria-expanded", "false");
-
-      if (immediate || !mobileQuery.matches) {
-        navbar.classList.remove("is--menu-open");
-        menu.classList.remove("is--open");
-        gsap.set(menu, { clearProps: "all" });
-        gsap.set([openIcon, closeIcon].filter(Boolean), { clearProps: "all" });
-        return;
-      }
-
-      timeline = gsap.timeline({
-        onComplete: () => {
-          menu.classList.remove("is--open");
-          navbar.classList.remove("is--menu-open");
-          gsap.set(menu, {
-            display: "none",
-            clearProps: "opacity,x,xPercent,transform,pointerEvents",
-          });
-        },
-      });
-
-      timeline.to(menu, {
-        xPercent: 100,
-        opacity: 0,
-        duration: 0.35,
-        ease: "power2.inOut",
-      });
-
-      if (openIcon) {
-        timeline.to(
-          openIcon,
-          {
-            opacity: 1,
-            duration: 0.3,
-          },
-          0,
-        );
-      }
-
-      if (closeIcon) {
-        timeline.to(
-          closeIcon,
-          {
-            opacity: 0,
-            duration: 0.25,
-          },
-          0,
-        );
-      }
+    const resetIcons = () => {
+      if (openIcon) gsap.set(openIcon, { opacity: 1, clearProps: "transform" });
+      if (closeIcon) gsap.set(closeIcon, { opacity: 0, clearProps: "transform" });
     };
 
-    const openMenu = () => {
-      if (!mobileQuery.matches || open) return;
-
-      open = true;
-      timeline?.kill();
-
-      trigger.classList.add("is--open");
-      trigger.setAttribute("aria-expanded", "true");
-      navbar.classList.add("is--menu-open");
-      menu.classList.add("is--open");
-      // Ensure fixed menu is viewport-relative, not trapped by a navbar transform.
-      gsap.set(navbar, { clearProps: "transform" });
-
+    const prepareMobileDropdowns = () => {
       document.querySelectorAll(".dropdown").forEach((dropdown) => {
         const list = dropdown.querySelector(":scope > .dropdown--list");
         const arrow = dropdown.querySelector(
@@ -815,45 +752,88 @@
         }
         if (arrow) gsap.set(arrow, { rotate: 180 });
       });
+    };
+
+    const closeMenu = (immediate = false) => {
+      open = false;
+      timeline?.kill();
+
+      trigger.classList.remove("is--open");
+      trigger.setAttribute("aria-expanded", "false");
+
+      if (immediate || !mobileQuery.matches) {
+        navbar.classList.remove("is--menu-open");
+        menu.classList.remove("is--open");
+        gsap.set(menu, { clearProps: "all" });
+        resetIcons();
+        return;
+      }
+
+      timeline = gsap.timeline({
+        onComplete: () => {
+          menu.classList.remove("is--open");
+          navbar.classList.remove("is--menu-open");
+          gsap.set(menu, {
+            display: "none",
+            clearProps: "opacity,x,xPercent,transform,pointerEvents",
+          });
+        },
+      });
+
+      timeline.to(
+        menu,
+        {
+          xPercent: 100,
+          opacity: 0,
+          duration: 0.35,
+          ease: "power2.inOut",
+        },
+        0,
+      );
+
+      if (openIcon) {
+        timeline.to(openIcon, { opacity: 1, duration: 0.3 }, 0);
+      }
+
+      if (closeIcon) {
+        timeline.to(closeIcon, { opacity: 0, duration: 0.25 }, 0);
+      }
+    };
+
+    const openMenu = () => {
+      if (!mobileQuery.matches || open) return;
+
+      open = true;
+      timeline?.kill();
+
+      trigger.classList.add("is--open");
+      trigger.setAttribute("aria-expanded", "true");
+      navbar.classList.add("is--menu-open");
+      menu.classList.add("is--open");
+      prepareMobileDropdowns();
 
       timeline = gsap.timeline();
 
       timeline
         .set(menu, {
           display: "flex",
+          xPercent: 100,
+          opacity: 0,
           pointerEvents: "auto",
         })
-        .fromTo(
-          menu,
-          { xPercent: 100, opacity: 0 },
-          {
-            xPercent: 0,
-            opacity: 1,
-            duration: 0.4,
-            ease: "power2.out",
-          },
-        );
+        .to(menu, {
+          xPercent: 0,
+          opacity: 1,
+          duration: 0.4,
+          ease: "power2.out",
+        });
 
       if (openIcon) {
-        timeline.to(
-          openIcon,
-          {
-            opacity: 0,
-            duration: 0.25,
-          },
-          0,
-        );
+        timeline.to(openIcon, { opacity: 0, duration: 0.25 }, 0);
       }
 
       if (closeIcon) {
-        timeline.to(
-          closeIcon,
-          {
-            opacity: 1,
-            duration: 0.3,
-          },
-          0,
-        );
+        timeline.to(closeIcon, { opacity: 1, duration: 0.3 }, 0);
       }
     };
 

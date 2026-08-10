@@ -186,18 +186,7 @@ body.is--locked {
   }
 
   .navbar.is--menu-open {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
     z-index: 10000;
-    width: 100%;
-  }
-
-  .navbar .container--nav,
-  .nav--right {
-    position: relative;
-    z-index: 1002;
   }
 
   .nav--brand,
@@ -207,28 +196,13 @@ body.is--locked {
   }
 
   /*
-    Padding, alignment, gaps, visibility helpers and internal layout
-    remain controlled by Webflow.
+    Webflow already sets .nav--menu to position:fixed; inset:0; display:none
+    on tablet/mobile. We only add animation helpers here.
   */
   .nav--menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: auto;
-    bottom: auto;
-    z-index: 1001;
-    display: none;
-    width: 100vw;
-    height: 100dvh;
-    max-width: 100vw;
-    margin: 0;
-    background-color: #ffffff;
     opacity: 0;
     pointer-events: none;
-    overflow-x: hidden;
-    overflow-y: auto;
     overscroll-behavior: contain;
-    transform: translate3d(100%, 0, 0);
     will-change: transform, opacity;
   }
 
