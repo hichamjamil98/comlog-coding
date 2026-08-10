@@ -72,7 +72,6 @@ html:not(.w-editor) body:not(.is-loading) .navbar {
 .swiper.is--services,
 .swiper.is--projects {
   width: 100%;
-  overflow: hidden;
 }
 
 .swiper-wrapper.is--services,
