@@ -7,6 +7,7 @@
   "use strict";
 
   document.addEventListener("DOMContentLoaded", () => {
+    initKarriereVertrag();
     initKarrierePopups();
 
     if (typeof Swiper === "undefined") {
@@ -68,6 +69,41 @@
 
     window.addEventListener("resize", update, { passive: true });
     window.addEventListener("orientationchange", update, { passive: true });
+  }
+
+  /* =========================================================================
+     CMS → VERTRAG TEXT
+     Fills [data--karriere-vertrag] from the sibling hidden CMS list.
+     Example: "Vollzeit" + "Festanstellung" → "Vollzeit · Festanstellung"
+  ========================================================================= */
+
+  function initKarriereVertrag() {
+    document.querySelectorAll("[data--karriere-vertrag]").forEach((target) => {
+      let list = null;
+
+      if (target.parentElement) {
+        list = target.parentElement.querySelector(
+          ":scope > .hide.w-dyn-list, :scope > .w-dyn-list",
+        );
+      }
+
+      if (
+        !list &&
+        target.nextElementSibling?.matches?.(".hide.w-dyn-list, .w-dyn-list")
+      ) {
+        list = target.nextElementSibling;
+      }
+
+      if (!list) return;
+
+      const values = [...list.querySelectorAll(".w-dyn-item")]
+        .map((item) => item.textContent.replace(/\s+/g, " ").trim())
+        .filter(Boolean);
+
+      if (!values.length) return;
+
+      target.textContent = values.join(" · ");
+    });
   }
 
   /* =========================================================================
