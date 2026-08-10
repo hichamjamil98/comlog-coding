@@ -25,6 +25,7 @@
   function initLoadingScreen() {
     const html = document.documentElement;
     const body = document.body;
+    const sessionKey = "comlog-loader-seen";
 
     const loader = document.querySelector(".loading--screen");
     const logoWrapper = loader?.querySelector(".brand--loading-wrapper");
@@ -46,6 +47,22 @@
       body.classList.remove("is-loading");
     };
 
+    const markLoaderSeen = () => {
+      try {
+        sessionStorage.setItem(sessionKey, "1");
+      } catch (_) {
+        /* private mode / blocked storage */
+      }
+    };
+
+    const hasSeenLoader = () => {
+      try {
+        return sessionStorage.getItem(sessionKey) === "1";
+      } catch (_) {
+        return false;
+      }
+    };
+
     if (!loader || typeof window.gsap === "undefined") {
       revealPageWithoutAnimation();
       return;
@@ -56,10 +73,12 @@
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    if (prefersReducedMotion) {
+    if (prefersReducedMotion || hasSeenLoader()) {
       revealPageWithoutAnimation();
       return;
     }
+
+    markLoaderSeen();
 
     html.classList.add("is-loading");
     body.classList.add("is-loading");
