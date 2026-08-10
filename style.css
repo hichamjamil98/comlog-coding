@@ -80,10 +80,13 @@ body.is--locked {
   will-change: transform, opacity;
 }
 
-.load-split__line-mask,
-.fade-split__line-mask {
+.load-split__line-mask {
   display: block;
   overflow: hidden;
+}
+
+.fade-split__line-mask {
+  display: block;
 }
 
 .load-split__line,
