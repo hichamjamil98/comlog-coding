@@ -55,6 +55,15 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+[karriere-title] {
+  display: none !important;
+}
+
+.career--popup .div-block-7 .career--item {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /*
   Swiper layout:
 

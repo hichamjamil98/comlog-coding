@@ -157,6 +157,12 @@
       );
     };
 
+    const syncActiveTabs = (activeId) => {
+      document.querySelectorAll(".career--popup .career--item").forEach((item) => {
+        item.classList.toggle("is--active", item.dataset.careerPopup === activeId);
+      });
+    };
+
     const resetPopup = (popup) => {
       const { content, bg } = getPopupParts(popup);
 
@@ -172,6 +178,27 @@
           content.style.transform = "translateY(2rem)";
         }
         if (bg) bg.style.opacity = "0";
+      }
+    };
+
+    const showPopupInstant = (popup) => {
+      const { content, bg } = getPopupParts(popup);
+
+      activePopup = popup;
+      popup.classList.add("is--open");
+      popup.style.display = "flex";
+      lock();
+      syncActiveTabs(popup.dataset.careerPopup);
+
+      if (gsap) {
+        if (content) gsap.set(content, { opacity: 1, y: 0 });
+        if (bg) gsap.set(bg, { opacity: 1 });
+      } else {
+        if (content) {
+          content.style.opacity = "1";
+          content.style.transform = "translateY(0)";
+        }
+        if (bg) bg.style.opacity = "1";
       }
     };
 
@@ -231,11 +258,14 @@
       }
     };
 
-    const openPopup = (popup) => {
+    const openPopup = (popup, { animate = true } = {}) => {
       if (!popup || closing) return;
+      if (activePopup === popup) {
+        syncActiveTabs(popup.dataset.careerPopup);
+        return;
+      }
 
       if (activePopup && activePopup !== popup) {
-        resetPopup(activePopup);
         if (gsap) {
           gsap.killTweensOf(
             activePopup.querySelectorAll(
@@ -243,6 +273,12 @@
             ),
           );
         }
+        resetPopup(activePopup);
+      }
+
+      if (!animate) {
+        showPopupInstant(popup);
+        return;
       }
 
       const { content, bg } = getPopupParts(popup);
@@ -251,6 +287,7 @@
       popup.classList.add("is--open");
       popup.style.display = "flex";
       lock();
+      syncActiveTabs(popup.dataset.careerPopup);
 
       if (!gsap) {
         if (content) {
@@ -276,24 +313,71 @@
       }
     };
 
+    const jobs = [];
+
     // Move popups to <body> so position:fixed isn't trapped by Swiper transforms.
-    document.querySelectorAll(".swiper-slide").forEach((slide, index) => {
-      const popup = slide.querySelector(".career--popup");
-      const trigger = slide.querySelector(
-        'a[aria-label="zur stellenausschreibung"]',
-      );
+    document
+      .querySelectorAll(".swiper.is--karriere-slider .swiper-slide")
+      .forEach((slide, index) => {
+        const popup = slide.querySelector(".career--popup");
+        const trigger = slide.querySelector(
+          'a[aria-label="zur stellenausschreibung"]',
+        );
+        const titleEl = slide.querySelector("[karriere-title]");
+        const title =
+          titleEl?.textContent.replace(/\s+/g, " ").trim() ||
+          `Stelle ${index + 1}`;
 
-      if (!popup) return;
+        if (!popup) return;
 
-      const id = `career-popup-${index + 1}`;
-      popup.dataset.careerPopup = id;
-      if (trigger) trigger.dataset.careerPopup = id;
+        const id = `career-popup-${index + 1}`;
+        popup.dataset.careerPopup = id;
+        if (trigger) trigger.dataset.careerPopup = id;
 
-      body.appendChild(popup);
-      resetPopup(popup);
+        jobs.push({ id, title });
+
+        body.appendChild(popup);
+        resetPopup(popup);
+      });
+
+    // Build in-popup job tabs from [karriere-title] values.
+    document.querySelectorAll(".career--popup").forEach((popup) => {
+      const nav = popup.querySelector(".div-block-7");
+      if (!nav || !jobs.length) return;
+
+      nav.innerHTML = "";
+
+      jobs.forEach((job) => {
+        const item = document.createElement("div");
+        item.className = "career--item";
+        item.textContent = job.title;
+        item.dataset.careerPopup = job.id;
+        item.setAttribute("role", "button");
+        item.setAttribute("tabindex", "0");
+
+        if (job.id === popup.dataset.careerPopup) {
+          item.classList.add("is--active");
+        }
+
+        nav.appendChild(item);
+      });
     });
 
     document.addEventListener("click", (event) => {
+      const tab = event.target.closest(".career--popup .career--item");
+
+      if (tab) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const popup = document.querySelector(
+          `.career--popup[data-career-popup="${tab.dataset.careerPopup}"]`,
+        );
+
+        if (popup) openPopup(popup, { animate: false });
+        return;
+      }
+
       const openTrigger = event.target.closest(
         'a[aria-label="zur stellenausschreibung"]',
       );
@@ -303,7 +387,7 @@
         event.stopPropagation();
 
         const popup = findPopupForTrigger(openTrigger);
-        if (popup) openPopup(popup);
+        if (popup) openPopup(popup, { animate: true });
         return;
       }
 
@@ -334,7 +418,21 @@
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && activePopup) {
         closePopup(activePopup);
+        return;
       }
+
+      if (event.key !== "Enter" && event.key !== " ") return;
+
+      const tab = event.target.closest?.(".career--popup .career--item");
+      if (!tab) return;
+
+      event.preventDefault();
+
+      const popup = document.querySelector(
+        `.career--popup[data-career-popup="${tab.dataset.careerPopup}"]`,
+      );
+
+      if (popup) openPopup(popup, { animate: false });
     });
   }
 
