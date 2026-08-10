@@ -125,8 +125,26 @@
     const elements = animElements("load");
     if (!elements.length) return;
 
+    const navbars = elements.filter((el) => el.classList.contains("navbar"));
+    const others = elements.filter((el) => !el.classList.contains("navbar"));
+
+    if (navbars.length) {
+      timeline.fromTo(
+        navbars,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          duration: 0.85,
+          clearProps: "opacity",
+        },
+        0,
+      );
+    }
+
+    if (!others.length) return;
+
     timeline.fromTo(
-      elements,
+      others,
       { opacity: 0, y: "1rem" },
       {
         opacity: 1,
@@ -482,8 +500,8 @@
 
       const desktopTimeline = desktopTimelines.get(dropdown);
       if (desktopTimeline) {
-        desktopTimeline.pause(0);
-        gsap.set(list, { display: "none", clearProps: "opacity,transform" });
+        desktopTimeline.pause();
+        gsap.set(list, { display: "none", clearProps: "opacity,x,transform" });
         if (arrow) gsap.set(arrow, { clearProps: "transform" });
       }
 
@@ -491,7 +509,7 @@
 
       if (!mobileQuery.matches || immediate) {
         gsap.set(list, { clearProps: "all" });
-        if (arrow) gsap.set(arrow, { clearProps: "transform" });
+        if (arrow) gsap.set(arrow, { clearProps: "all" });
         return;
       }
 
@@ -535,12 +553,17 @@
 
       if (!mobileQuery.matches) return;
 
+      const desktopTimeline = desktopTimelines.get(dropdown);
+      desktopTimeline?.pause();
+
       gsap.killTweensOf([list, arrow].filter(Boolean));
 
       if (!animate) {
         gsap.set(list, {
           display: "flex",
-          clearProps: "height,overflow,opacity,x,transform",
+          opacity: 1,
+          x: 0,
+          clearProps: "height,overflow",
         });
         if (arrow) gsap.set(arrow, { rotate: 180 });
         return;
@@ -572,8 +595,23 @@
 
     const openAllMobileDropdowns = () => {
       dropdowns.forEach((dropdown) => {
+        const { list, arrow } = getDropdownParts(dropdown);
         const desktopTimeline = desktopTimelines.get(dropdown);
-        desktopTimeline?.pause(0);
+
+        // Never seek desktop timelines to 0 on mobile — that applies
+        // opacity:0 / x:1.5rem from the desktop hover intro.
+        desktopTimeline?.pause();
+        gsap.killTweensOf([list, arrow].filter(Boolean));
+
+        if (list) {
+          gsap.set(list, {
+            display: "flex",
+            opacity: 1,
+            x: 0,
+            clearProps: "height,overflow",
+          });
+        }
+
         openDropdown(dropdown, { exclusive: false, animate: false });
       });
     };
@@ -601,6 +639,7 @@
           opacity: 1,
           x: 0,
           duration: 0.5,
+          immediateRender: false,
         },
         0,
       );
@@ -715,13 +754,13 @@
           menu.classList.remove("is--open");
           gsap.set(menu, {
             display: "none",
-            clearProps: "opacity,x,transform,pointerEvents",
+            clearProps: "opacity,x,xPercent,transform,pointerEvents",
           });
         },
       });
 
       timeline.to(menu, {
-        x: "100vw",
+        xPercent: 100,
         opacity: 0,
         duration: 0.35,
         ease: "power2.inOut",
@@ -760,6 +799,8 @@
       trigger.setAttribute("aria-expanded", "true");
       navbar.classList.add("is--menu-open");
       menu.classList.add("is--open");
+      // Ensure fixed menu is viewport-relative, not trapped by a navbar transform.
+      gsap.set(navbar, { clearProps: "transform" });
       lock();
 
       document.querySelectorAll(".dropdown").forEach((dropdown) => {
@@ -775,11 +816,14 @@
         dropTrigger?.setAttribute("aria-expanded", "true");
         list?.setAttribute("aria-hidden", "false");
 
-        if (list)
+        if (list) {
           gsap.set(list, {
             display: "flex",
-            clearProps: "height,overflow,opacity,x,transform",
+            opacity: 1,
+            x: 0,
+            clearProps: "height,overflow",
           });
+        }
         if (arrow) gsap.set(arrow, { rotate: 180 });
       });
 
@@ -792,9 +836,9 @@
         })
         .fromTo(
           menu,
-          { x: "100vw", opacity: 0 },
+          { xPercent: 100, opacity: 0 },
           {
-            x: 0,
+            xPercent: 0,
             opacity: 1,
             duration: 0.4,
             ease: "power2.out",
