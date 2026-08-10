@@ -1,0 +1,59 @@
+/* ==========================================================================
+   COMLOG — KARRIERE
+========================================================================== */
+
+/* ==========================================================================
+   KARRIERE SLIDER
+========================================================================== */
+
+.swiper.is--karriere-slider {
+  width: 100%;
+  overflow: hidden;
+}
+
+.swiper.is--karriere-slider .swiper-wrapper {
+  align-items: stretch;
+  gap: 0 !important;
+}
+
+.swiper.is--karriere-slider .swiper-slide {
+  height: auto;
+}
+
+.career--item-slide {
+  height: 100%;
+}
+
+/*
+  Swiper layout:
+
+  Desktop (≥992px): 3 slides, move by 1
+  Below 992px:      1 slide, move by 1
+
+  Spacing:
+  Desktop: 1.5rem
+  Tablet:  1rem
+  Mobile:  0
+*/
+
+/* ==========================================================================
+   NAVIGATION
+========================================================================== */
+
+.swiper--button-wrap.is--karriere {
+  position: relative;
+  z-index: 2;
+}
+
+.swiper--button-wrap.is--karriere .swiper--button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.swiper--button-wrap.is--karriere .swiper--button.swiper-button-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.swiper--button-wrap.is--karriere .swiper-button-lock {
+  display: flex !important;
+}
