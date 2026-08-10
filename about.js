@@ -84,42 +84,50 @@
         if (!slides.length) return;
   
         const swiper = new Swiper(slider, {
-          slidesPerView: "auto",
+          slidesPerView: 1,
+          slidesPerGroup: 1,
           spaceBetween: getQuotesSpacing(),
           speed: 700,
-  
-          loop: slides.length > 1,
+
+          loop: slides.length > 2,
           loopAdditionalSlides: Math.min(slides.length, 4),
           loopPreventsSliding: false,
-  
+
           centeredSlides: false,
           centerInsufficientSlides: false,
-  
+
           grabCursor: true,
           watchOverflow: false,
-  
+
           observer: true,
           observeParents: true,
           observeSlideChildren: true,
-  
+
           resistanceRatio: 0.75,
           roundLengths: false,
-  
+
+          breakpoints: {
+            992: {
+              slidesPerView: 2,
+              slidesPerGroup: 1,
+            },
+          },
+
           keyboard: {
             enabled: true,
             onlyInViewport: true,
           },
-  
+
           navigation: {
             prevEl: navigation.previous,
             nextEl: navigation.next,
           },
-  
+
           on: {
             init(instance) {
               instance.el.classList.add("is--ready");
             },
-  
+
             resize(instance) {
               instance.params.spaceBetween = getQuotesSpacing();
               instance.update();

@@ -25,8 +25,12 @@
 }
 
 /*
-  Swiper handles the gaps through JavaScript:
+  Swiper layout:
 
+  Desktop (≥992px): 2 slides, move by 1
+  Below 992px:      1 slide, move by 1
+
+  Spacing:
   Desktop: 1.5rem
   Tablet:  1rem
   Mobile:  1rem
