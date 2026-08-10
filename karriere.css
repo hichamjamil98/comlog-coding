@@ -23,6 +23,37 @@
   height: 100%;
 }
 
+/* ==========================================================================
+   CAREER POPUP
+========================================================================== */
+
+.career--popup {
+  display: none;
+}
+
+.career--popup.is--open {
+  display: flex;
+}
+
+.career--popup-bg {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.career--popup-bg,
+.career--popup-content {
+  will-change: opacity, transform;
+}
+
+.karriere--popup-close,
+.career--popup-close {
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /*
   Swiper layout:
 
