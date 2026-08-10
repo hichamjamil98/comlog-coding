@@ -214,15 +214,17 @@ body.is--locked {
 
   .dropdown > .dropdown--list {
     position: static;
+    display: flex;
     width: auto;
     min-width: 0;
   }
 
-  .dropdown.is--open > .dropdown--list {
-    display: flex;
+  .dropdown--trigger {
+    cursor: default;
+    pointer-events: none;
   }
 
-  .dropdown.is--open .drop--arrow {
+  .dropdown .drop--arrow {
     transform: rotate(180deg);
   }
 }

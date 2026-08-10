@@ -567,12 +567,6 @@
       });
     };
 
-    const toggleDropdown = (dropdown) => {
-      dropdown.classList.contains("is--open")
-        ? closeDropdown(dropdown)
-        : openDropdown(dropdown);
-    };
-
     const openAllMobileDropdowns = () => {
       dropdowns.forEach((dropdown) => {
         openDropdown(dropdown, { exclusive: false, animate: false });
@@ -648,21 +642,6 @@
       dropdown.addEventListener("pointerleave", () => {
         if (mobileQuery.matches || !desktopTimeline) return;
         desktopTimeline.reverse();
-      });
-
-      trigger.addEventListener("click", (event) => {
-        if (!mobileQuery.matches) return;
-
-        event.preventDefault();
-        toggleDropdown(dropdown);
-      });
-
-      trigger.addEventListener("keydown", (event) => {
-        if (!mobileQuery.matches) return;
-        if (event.key !== "Enter" && event.key !== " ") return;
-
-        event.preventDefault();
-        toggleDropdown(dropdown);
       });
     });
 
