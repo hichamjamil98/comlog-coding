@@ -58,8 +58,8 @@
 
   /* =========================================================================
      GERMAN RESPONSIVE TEXT
-     Keep words whole. Wrap + hyphenate a word only if it cannot fit
-     on the next line (wider than the heading).
+     Keep each word whole (nowrap). Hyphenate only if the word is wider
+     than the heading and therefore cannot fit on the next line.
   ========================================================================= */
 
   function initGermanResponsiveText() {
@@ -74,8 +74,10 @@
 
     if (!headings.length) return;
 
+    headings.forEach(wrapGermanWords);
+
     const apply = () => {
-      headings.forEach(wrapOverflowingGermanWords);
+      headings.forEach(markOverflowingGermanWords);
     };
 
     apply();
@@ -95,11 +97,48 @@
     window.addEventListener("orientationchange", onResize, { passive: true });
   }
 
-  function unwrapGermanWords(element) {
-    element.querySelectorAll(".de-word").forEach((span) => {
-      span.replaceWith(document.createTextNode(span.textContent));
+  function wrapGermanWords(element) {
+    if (element.dataset.deWords === "true") return;
+
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue || !/\S/.test(node.nodeValue)) {
+          return NodeFilter.FILTER_REJECT;
+        }
+
+        if (node.parentElement?.closest(".de-word")) {
+          return NodeFilter.FILTER_REJECT;
+        }
+
+        return NodeFilter.FILTER_ACCEPT;
+      },
     });
-    element.normalize();
+
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    textNodes.forEach((node) => {
+      const parts = node.nodeValue.split(/(\s+)/);
+      const fragment = document.createDocumentFragment();
+
+      parts.forEach((part) => {
+        if (!part) return;
+
+        if (/^\s+$/.test(part)) {
+          fragment.appendChild(document.createTextNode(part));
+          return;
+        }
+
+        const span = document.createElement("span");
+        span.className = "de-word";
+        span.textContent = part;
+        fragment.appendChild(span);
+      });
+
+      node.parentNode.replaceChild(fragment, node);
+    });
+
+    element.dataset.deWords = "true";
   }
 
   function getGermanLineWidth(element) {
@@ -112,69 +151,20 @@
     );
   }
 
-  function collectGermanTextNodes(element) {
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
-      acceptNode(node) {
-        if (!node.nodeValue || !/\S/.test(node.nodeValue)) {
-          return NodeFilter.FILTER_REJECT;
-        }
+  function markOverflowingGermanWords(element) {
+    const words = element.querySelectorAll(".de-word");
+    if (!words.length) return;
 
-        return NodeFilter.FILTER_ACCEPT;
-      },
-    });
-
-    const textNodes = [];
-    while (walker.nextNode()) textNodes.push(walker.currentNode);
-    return textNodes;
-  }
-
-  function wrapOverflowingGermanWords(element) {
-    unwrapGermanWords(element);
+    words.forEach((word) => word.classList.remove("is--hyphenate"));
 
     const lineWidth = getGermanLineWidth(element);
     if (lineWidth <= 0) return;
 
-    const probe = document.createElement("span");
-    probe.setAttribute("aria-hidden", "true");
-    probe.style.cssText =
-      "position:absolute;left:0;top:0;visibility:hidden;white-space:nowrap;pointer-events:none;";
-    element.appendChild(probe);
-
-    collectGermanTextNodes(element).forEach((node) => {
-      if (node.parentElement === probe) return;
-
-      const parts = node.nodeValue.split(/(\s+)/);
-      const fragment = document.createDocumentFragment();
-      let wrapped = false;
-
-      parts.forEach((part) => {
-        if (!part) return;
-
-        if (/^\s+$/.test(part)) {
-          fragment.appendChild(document.createTextNode(part));
-          return;
-        }
-
-        probe.textContent = part;
-
-        if (probe.getBoundingClientRect().width > lineWidth + 0.5) {
-          const span = document.createElement("span");
-          span.className = "de-word";
-          span.textContent = part;
-          fragment.appendChild(span);
-          wrapped = true;
-          return;
-        }
-
-        fragment.appendChild(document.createTextNode(part));
-      });
-
-      if (wrapped) {
-        node.parentNode.replaceChild(fragment, node);
+    words.forEach((word) => {
+      if (word.getBoundingClientRect().width > lineWidth + 0.5) {
+        word.classList.add("is--hyphenate");
       }
     });
-
-    probe.remove();
   }
 
   function prepareSplitLines(element, prefix) {

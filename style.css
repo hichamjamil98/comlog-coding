@@ -33,13 +33,18 @@ html:not([lang="de-DE"]) .project--category {
 }
 
 html[lang="de-DE"] [class*="heading-style-"] {
-  hyphens: none;
-  -webkit-hyphens: none;
+  hyphens: none !important;
+  -webkit-hyphens: none !important;
 }
 
 html[lang="de-DE"] [class*="heading-style-"] .de-word {
-  hyphens: auto;
-  -webkit-hyphens: auto;
+  white-space: nowrap;
+}
+
+html[lang="de-DE"] [class*="heading-style-"] .de-word.is--hyphenate {
+  white-space: normal;
+  hyphens: auto !important;
+  -webkit-hyphens: auto !important;
   hyphenate-limit-chars: 8 4 6;
   -webkit-hyphenate-limit-before: 4;
   -webkit-hyphenate-limit-after: 6;
