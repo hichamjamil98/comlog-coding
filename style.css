@@ -62,16 +62,18 @@ html[lang="de-DE"] [class*="heading-style-"] .de-word {
 }
 
 html[lang="de-DE"] [class*="heading-style-"] .de-word.is--hyphenate {
+  display: inline;
   max-width: 100%;
   white-space: normal;
   hyphens: manual !important;
   -webkit-hyphens: manual !important;
-  overflow-wrap: break-word;
 }
 
-html[lang="de-DE"] [class*="heading-style-"] .de-word.is--hyphenate.is--hyphenate-auto {
-  hyphens: auto !important;
-  -webkit-hyphens: auto !important;
+html[lang="de-DE"] [class*="heading-style-"] .de-part {
+  display: inline-block;
+  white-space: nowrap;
+  hyphens: none !important;
+  -webkit-hyphens: none !important;
 }
 
 html[lang="de-DE"] [class*="heading-style-"],

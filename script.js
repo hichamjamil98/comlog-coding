@@ -263,9 +263,8 @@
     "inbetrieb",
     "dienstleister",
     "techniker",
-    "herausforderung",
-    "herausforderungen",
-    "anspruchsvoll",
+    "forderungen",
+    "forderung",
     "zeitkritisch",
     "luftfracht",
     "zusammenhalt",
@@ -273,6 +272,7 @@
     "geschäft",
     "tages",
     "anspruch",
+    "heraus",
     "fracht",
     "nahme",
     "mittel",
@@ -281,6 +281,7 @@
     "kraft",
     "arbeit",
     "kritisch",
+    "volle",
     "gross",
     "groß",
     "hoch",
@@ -347,20 +348,39 @@
   function hyphenateGermanCompound(text) {
     const parsed = text.match(/^([^\p{L}\p{M}]*)(.*?)([^\p{L}\p{M}]*)$/su);
 
-    if (!parsed || !parsed[2]) return text;
+    if (!parsed || !parsed[2]) {
+      return { lead: "", parts: [text], trail: "" };
+    }
 
     const parts = splitGermanCompound(parsed[2]);
 
-    if (parts.length < 2) return text;
-
-    return parsed[1] + parts.join("\u00AD") + parsed[3];
+    return { lead: parsed[1], parts, trail: parsed[3] };
   }
 
   function restoreGermanWord(word) {
     if (word.dataset.deOriginal) {
       word.textContent = word.dataset.deOriginal;
     }
-    word.classList.remove("is--hyphenate", "is--hyphenate-auto");
+    word.classList.remove("is--hyphenate");
+  }
+
+  function renderGermanCompound(word, lead, parts, trail) {
+    word.textContent = "";
+    word.classList.add("is--hyphenate");
+
+    parts.forEach((part, index) => {
+      if (index > 0) {
+        word.appendChild(document.createTextNode("\u00AD"));
+      }
+
+      const piece = document.createElement("span");
+      piece.className = "de-part";
+      piece.textContent =
+        (index === 0 ? lead : "") +
+        part +
+        (index === parts.length - 1 ? trail : "");
+      word.appendChild(piece);
+    });
   }
 
   function paddedClientWidth(element) {
@@ -409,14 +429,11 @@
       if (wordWidth <= lineWidth + 1) return;
 
       const original = word.dataset.deOriginal || word.textContent;
-      const hyphenated = hyphenateGermanCompound(original);
+      const { lead, parts, trail } = hyphenateGermanCompound(original);
 
-      word.classList.add("is--hyphenate");
-      word.textContent = hyphenated;
+      if (parts.length < 2) return;
 
-      if (!hyphenated.includes("\u00AD")) {
-        word.classList.add("is--hyphenate-auto");
-      }
+      renderGermanCompound(word, lead, parts, trail);
     });
   }
 
