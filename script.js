@@ -141,7 +141,7 @@
     element.dataset.deWords = "true";
   }
 
-  function getGermanLineWidth(element) {
+  function contentWidth(element) {
     const styles = getComputedStyle(element);
 
     return (
@@ -149,6 +149,28 @@
       (parseFloat(styles.paddingLeft) || 0) -
       (parseFloat(styles.paddingRight) || 0)
     );
+  }
+
+  function getGermanLineWidth(element) {
+    const words = [...element.querySelectorAll(".de-word")];
+
+    words.forEach((word) => {
+      word.style.whiteSpace = "normal";
+    });
+
+    let width = contentWidth(element);
+    const parent = element.parentElement;
+
+    if (parent) {
+      const parentWidth = contentWidth(parent);
+      if (parentWidth > 0) width = Math.min(width, parentWidth);
+    }
+
+    words.forEach((word) => {
+      word.style.whiteSpace = "";
+    });
+
+    return width;
   }
 
   function markOverflowingGermanWords(element) {
@@ -161,7 +183,7 @@
     if (lineWidth <= 0) return;
 
     words.forEach((word) => {
-      if (word.getBoundingClientRect().width > lineWidth + 0.5) {
+      if (word.scrollWidth > lineWidth + 0.5) {
         word.classList.add("is--hyphenate");
       }
     });

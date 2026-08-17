@@ -33,8 +33,14 @@ html:not([lang="de-DE"]) .project--category {
 }
 
 html[lang="de-DE"] [class*="heading-style-"] {
+  min-width: 0;
+  max-width: 100%;
   hyphens: none !important;
   -webkit-hyphens: none !important;
+}
+
+.hero--title {
+  min-width: 0;
 }
 
 html[lang="de-DE"] [class*="heading-style-"] .de-word {
