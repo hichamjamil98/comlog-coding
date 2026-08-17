@@ -424,6 +424,34 @@
     return width;
   }
 
+  function measureGermanText(heading, text) {
+    const probe = document.createElement("span");
+    probe.className = "de-word";
+    probe.setAttribute("aria-hidden", "true");
+    probe.style.cssText =
+      "position:absolute;left:0;top:0;visibility:hidden;white-space:nowrap;pointer-events:none;";
+    probe.textContent = text;
+    heading.appendChild(probe);
+
+    const width = Math.max(probe.scrollWidth, probe.getBoundingClientRect().width);
+    probe.remove();
+    return width;
+  }
+
+  function packGermanStems(stems, lineWidth, measure) {
+    if (stems.length <= 1) return stems;
+
+    const leftStems = stems.slice(0, -1);
+    const right = stems[stems.length - 1];
+    const left = leftStems.join("");
+
+    if (measure(left) <= lineWidth + 1) {
+      return [left, right];
+    }
+
+    return [...packGermanStems(leftStems, lineWidth, measure), right];
+  }
+
   function markOverflowingGermanWords(element) {
     const words = element.querySelectorAll(".de-word");
     if (!words.length) return;
@@ -432,6 +460,8 @@
 
     const lineWidth = getGermanLineWidth(element);
     if (lineWidth <= 0) return;
+
+    const measure = (text) => measureGermanText(element, text);
 
     words.forEach((word) => {
       const wordWidth = Math.max(
@@ -446,7 +476,12 @@
 
       if (parts.length < 2) return;
 
-      renderGermanCompound(word, lead, parts, trail);
+      renderGermanCompound(
+        word,
+        lead,
+        packGermanStems(parts, lineWidth, measure),
+        trail,
+      );
     });
   }
 
