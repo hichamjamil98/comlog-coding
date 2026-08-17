@@ -13,6 +13,38 @@ body.is--locked {
 }
 
 /* ==========================================================================
+   GERMAN TYPOGRAPHY
+   Hyphens + optical trim only when the locale is de-DE.
+   More specific than the Webflow embed so other langs stay un-cut.
+========================================================================== */
+
+html:not([lang="de-DE"]) [class*="heading-style-"] {
+  hyphens: none;
+  -webkit-hyphens: none;
+}
+
+html:not([lang="de-DE"]) [class*="heading-style-"],
+html:not([lang="de-DE"]) .career--tag,
+html:not([lang="de-DE"]) .trim--text,
+html:not([lang="de-DE"]) .project--category {
+  text-box-trim: none;
+  text-box-edge: auto;
+}
+
+html[lang="de-DE"] [class*="heading-style-"] {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+html[lang="de-DE"] [class*="heading-style-"],
+html[lang="de-DE"] .career--tag,
+html[lang="de-DE"] .trim--text,
+html[lang="de-DE"] .project--category {
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+/* ==========================================================================
    NAVBAR
 ========================================================================== */
 
