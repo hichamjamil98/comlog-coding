@@ -454,7 +454,7 @@
         slidesPerView: 1,
         slidesPerGroup: 1,
         spaceBetween: getKarriereSpacing(),
-        speed: 750,
+        speed: 450,
         grabCursor: true,
         watchOverflow: true,
         observer: true,

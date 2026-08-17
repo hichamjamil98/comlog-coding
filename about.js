@@ -87,7 +87,7 @@
           slidesPerView: 1,
           slidesPerGroup: 1,
           spaceBetween: getQuotesSpacing(),
-          speed: 700,
+          speed: 450,
 
           loop: slides.length > 2,
           loopAdditionalSlides: Math.min(slides.length, 4),

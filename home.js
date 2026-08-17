@@ -472,14 +472,12 @@
         slidesPerView: 1,
         slidesPerGroup: 1,
         spaceBetween: getSpacing(),
-        speed: 750,
+        speed: 450,
         grabCursor: true,
         watchOverflow: true,
         observer: true,
         observeParents: true,
         resistanceRatio: 0.75,
-        simulateTouch: true,
-        touchStartPreventDefault: false,
 
         breakpoints: {
           992: {
@@ -548,7 +546,7 @@
         slidesPerView: 1,
         slidesPerGroup: 1,
         spaceBetween: getSpacing(),
-        speed: 750,
+        speed: 450,
         watchOverflow: false,
         observer: true,
         observeParents: true,
