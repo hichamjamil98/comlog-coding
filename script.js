@@ -58,14 +58,19 @@
 
   /* =========================================================================
      GERMAN RESPONSIVE TEXT
-     Keep each word whole (nowrap). Hyphenate only if the word is wider
-     than the heading and therefore cannot fit on the next line.
+     Each word is an inline-block so it wraps whole. Hyphenate only when
+     that word is wider than the real column (cannot fit on the next line).
   ========================================================================= */
+
+  function isGermanLocale(html) {
+    const lang = html.getAttribute("lang") || html.lang || "";
+    return /^de(-|$)/i.test(lang);
+  }
 
   function initGermanResponsiveText() {
     const html = document.documentElement;
 
-    if (html.lang !== "de-DE") return;
+    if (!isGermanLocale(html)) return;
     if (html.classList.contains("w-editor")) return;
 
     const headings = [
@@ -80,14 +85,20 @@
       headings.forEach(markOverflowingGermanWords);
     };
 
+    const schedule = () => {
+      requestAnimationFrame(() => requestAnimationFrame(apply));
+    };
+
     apply();
+    schedule();
 
     if (document.fonts?.ready) {
-      document.fonts.ready.then(apply).catch(() => {});
+      document.fonts.ready.then(schedule).catch(() => {});
     }
 
-    let resizeFrame = null;
+    window.addEventListener("load", schedule, { once: true });
 
+    let resizeFrame = null;
     const onResize = () => {
       if (resizeFrame) cancelAnimationFrame(resizeFrame);
       resizeFrame = requestAnimationFrame(apply);
@@ -95,6 +106,14 @@
 
     window.addEventListener("resize", onResize, { passive: true });
     window.addEventListener("orientationchange", onResize, { passive: true });
+
+    if (typeof ResizeObserver === "function") {
+      const observer = new ResizeObserver(onResize);
+      headings.forEach((heading) => observer.observe(heading));
+      if (headings[0]?.parentElement) {
+        observer.observe(headings[0].parentElement);
+      }
+    }
   }
 
   function wrapGermanWords(element) {
@@ -141,7 +160,7 @@
     element.dataset.deWords = "true";
   }
 
-  function contentWidth(element) {
+  function paddedClientWidth(element) {
     const styles = getComputedStyle(element);
 
     return (
@@ -152,23 +171,19 @@
   }
 
   function getGermanLineWidth(element) {
-    const words = [...element.querySelectorAll(".de-word")];
+    const viewport = document.documentElement.clientWidth;
+    let width = viewport;
+    let node = element;
 
-    words.forEach((word) => {
-      word.style.whiteSpace = "normal";
-    });
+    while (node && node !== document.documentElement) {
+      const next = paddedClientWidth(node);
 
-    let width = contentWidth(element);
-    const parent = element.parentElement;
+      if (next > 0 && next <= viewport + 1) {
+        width = Math.min(width, next);
+      }
 
-    if (parent) {
-      const parentWidth = contentWidth(parent);
-      if (parentWidth > 0) width = Math.min(width, parentWidth);
+      node = node.parentElement;
     }
-
-    words.forEach((word) => {
-      word.style.whiteSpace = "";
-    });
 
     return width;
   }
@@ -183,7 +198,9 @@
     if (lineWidth <= 0) return;
 
     words.forEach((word) => {
-      if (word.scrollWidth > lineWidth + 0.5) {
+      const wordWidth = Math.max(word.scrollWidth, word.getBoundingClientRect().width);
+
+      if (wordWidth > lineWidth + 1) {
         word.classList.add("is--hyphenate");
       }
     });
