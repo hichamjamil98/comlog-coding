@@ -14,8 +14,9 @@ body.is--locked {
 
 /* ==========================================================================
    GERMAN TYPOGRAPHY
-   Hyphens + optical trim only when the locale is de-DE.
-   More specific than the Webflow embed so other langs stay un-cut.
+   Optical trim when locale is de-DE.
+   Words wrap whole; hyphenation is applied per word in script.js
+   only if the word cannot fit on the next line.
 ========================================================================== */
 
 html:not([lang="de-DE"]) [class*="heading-style-"] {
@@ -32,8 +33,19 @@ html:not([lang="de-DE"]) .project--category {
 }
 
 html[lang="de-DE"] [class*="heading-style-"] {
+  hyphens: none;
+  -webkit-hyphens: none;
+}
+
+html[lang="de-DE"] [class*="heading-style-"] .de-word {
+  display: inline-block;
+}
+
+html[lang="de-DE"] [class*="heading-style-"] .de-word.is--hyphenate {
+  display: inline;
   hyphens: auto;
   -webkit-hyphens: auto;
+  overflow-wrap: break-word;
 }
 
 html[lang="de-DE"] [class*="heading-style-"],

@@ -7,6 +7,8 @@
   "use strict";
 
   document.addEventListener("DOMContentLoaded", () => {
+    initGermanResponsiveText();
+
     if (typeof gsap === "undefined") {
       console.warn("Comlog: GSAP is missing.");
       return;
@@ -52,6 +54,115 @@
 
   function animElements(name) {
     return gsap.utils.toArray(`[${name}], [animation="${name}"]`);
+  }
+
+  /* =========================================================================
+     GERMAN RESPONSIVE TEXT
+     Wrap whole words. Hyphenate a word only if it cannot fit on the next line.
+  ========================================================================= */
+
+  function initGermanResponsiveText() {
+    const html = document.documentElement;
+
+    if (html.lang !== "de-DE") return;
+    if (html.classList.contains("w-editor")) return;
+
+    const headings = [
+      ...document.querySelectorAll('[class*="heading-style-"]'),
+    ];
+
+    if (!headings.length) return;
+
+    headings.forEach(wrapGermanWords);
+
+    const apply = () => {
+      headings.forEach(markOverflowingGermanWords);
+    };
+
+    apply();
+
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(apply).catch(() => {});
+    }
+
+    let resizeFrame = null;
+
+    const onResize = () => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(apply);
+    };
+
+    window.addEventListener("resize", onResize, { passive: true });
+    window.addEventListener("orientationchange", onResize, { passive: true });
+  }
+
+  function wrapGermanWords(element) {
+    if (element.dataset.deWords === "true") return;
+
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue || !/\S/.test(node.nodeValue)) {
+          return NodeFilter.FILTER_REJECT;
+        }
+
+        if (node.parentElement?.closest(".de-word")) {
+          return NodeFilter.FILTER_REJECT;
+        }
+
+        return NodeFilter.FILTER_ACCEPT;
+      },
+    });
+
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    textNodes.forEach((node) => {
+      const parts = node.nodeValue.split(/(\s+)/);
+      const fragment = document.createDocumentFragment();
+
+      parts.forEach((part) => {
+        if (!part) return;
+
+        if (/^\s+$/.test(part)) {
+          fragment.appendChild(document.createTextNode(part));
+          return;
+        }
+
+        const span = document.createElement("span");
+        span.className = "de-word";
+        span.textContent = part;
+        fragment.appendChild(span);
+      });
+
+      node.parentNode.replaceChild(fragment, node);
+    });
+
+    element.dataset.deWords = "true";
+  }
+
+  function getGermanLineWidth(element) {
+    const styles = getComputedStyle(element);
+
+    return (
+      element.clientWidth -
+      (parseFloat(styles.paddingLeft) || 0) -
+      (parseFloat(styles.paddingRight) || 0)
+    );
+  }
+
+  function markOverflowingGermanWords(element) {
+    const words = element.querySelectorAll(".de-word");
+    if (!words.length) return;
+
+    words.forEach((word) => word.classList.remove("is--hyphenate"));
+
+    const lineWidth = getGermanLineWidth(element);
+
+    words.forEach((word) => {
+      if (word.getBoundingClientRect().width > lineWidth + 0.5) {
+        word.classList.add("is--hyphenate");
+      }
+    });
   }
 
   function prepareSplitLines(element, prefix) {
