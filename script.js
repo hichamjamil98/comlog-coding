@@ -282,6 +282,7 @@
     "arbeit",
     "kritisch",
     "volle",
+    "voll",
     "gross",
     "groß",
     "hoch",
@@ -311,7 +312,7 @@
     return "";
   }
 
-  function splitGermanCompound(word) {
+  function splitGermanCompoundPlain(word) {
     const lower = word.toLocaleLowerCase("de-DE");
 
     if (lower.length < 10) return [word];
@@ -343,6 +344,18 @@
     }
 
     return parts.length > 1 ? parts : [word];
+  }
+
+  function splitGermanCompound(word) {
+    if (word.includes("-")) {
+      const chunks = word.split("-").map((chunk) => chunk.trim()).filter(Boolean);
+
+      if (chunks.length > 1) {
+        return chunks.flatMap((chunk) => splitGermanCompoundPlain(chunk));
+      }
+    }
+
+    return splitGermanCompoundPlain(word);
   }
 
   function hyphenateGermanCompound(text) {
