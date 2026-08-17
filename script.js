@@ -161,69 +161,150 @@
     element.dataset.deWords = "true";
   }
 
+  /*
+    General German compounding pieces, not a page-by-page word list.
+    Longest match first. Fugenlaut (-s-, -n-, -en-, -es-) is handled
+    separately so "Sicherheit" + s + "logistik" still splits.
+  */
   const GERMAN_COMPOUND_STEMS = [
-    "sicherheitstechnik",
-    "genehmigungs",
+    "infrastruktur",
+    "ansprechpartner",
+    "kommissionierung",
+    "koordination",
     "genehmigung",
-    "sicherheits",
     "sicherheit",
-    "speditions",
     "spedition",
     "transporte",
     "transport",
-    "infrastruktur",
-    "ansprechpartner",
-    "koordination",
-    "kommissionierung",
-    "ladungsicherung",
-    "sicherung",
     "management",
     "logistik",
     "anfragen",
     "anfrage",
-    "vorfeld",
-    "service",
+    "sicherung",
+    "abwicklung",
+    "kontrolle",
+    "technische",
+    "lieferung",
+    "industrie",
+    "botschaften",
+    "botschaft",
+    "anstalten",
+    "anstalt",
+    "behörden",
+    "behörde",
+    "vollzug",
     "montage",
     "wartung",
     "flughafen",
+    "vorfeld",
+    "service",
     "airport",
     "partner",
     "netzwerk",
-    "behörden",
-    "behörde",
-    "lieferung",
     "express",
     "standard",
     "versand",
-    "abwicklung",
-    "kontrolle",
-    "kontroll",
     "terminal",
-    "technische",
     "technik",
     "dienste",
     "dienst",
-    "industrie",
     "spezial",
     "aviation",
     "kritische",
     "projekt",
     "ladung",
     "justiz",
-    "vollzugs",
-    "anstalten",
-    "anstalt",
-    "botschaften",
-    "botschaft",
     "leistung",
     "bereiche",
+    "bereich",
     "spuren",
     "sonder",
     "haupt",
+    "neben",
+    "innen",
+    "außen",
     "gesamt",
+    "selbst",
+    "zwischen",
+    "hinter",
+    "unter",
+    "über",
+    "gegen",
+    "durch",
+    "kontroll",
+    "planung",
+    "lösung",
+    "system",
+    "anlagen",
+    "anlage",
+    "betrieb",
+    "prozess",
+    "qualität",
+    "personal",
+    "fahrzeug",
+    "fahrzeuge",
+    "fahrer",
+    "maschine",
+    "maschinen",
+    "bauteil",
+    "bauteile",
+    "sendung",
+    "sendungen",
+    "konzept",
+    "konzepte",
+    "anforderung",
+    "anforderungen",
+    "auflage",
+    "auflagen",
+    "inbetrieb",
+    "dienstleister",
+    "techniker",
+    "herausforderung",
+    "herausforderungen",
+    "anspruchsvoll",
+    "zeitkritisch",
+    "luftfracht",
+    "zusammenhalt",
+    "projekte",
+    "geschäft",
+    "tages",
+    "anspruch",
+    "fracht",
+    "nahme",
+    "mittel",
+    "platz",
+    "beruf",
+    "kraft",
+    "arbeit",
+    "kritisch",
+    "gross",
+    "groß",
+    "hoch",
+    "luft",
+    "zeit",
   ]
     .filter((stem, index, stems) => stems.indexOf(stem) === index)
     .sort((left, right) => right.length - left.length);
+
+  const GERMAN_FUGEN = ["ens", "en", "es", "n", "s"];
+
+  function findGermanStemAt(lower, index) {
+    for (const candidate of GERMAN_COMPOUND_STEMS) {
+      if (lower.startsWith(candidate, index)) return candidate;
+    }
+    return "";
+  }
+
+  function findGermanFugenAt(lower, index) {
+    if (index <= 0 || index >= lower.length) return "";
+
+    for (const fugen of GERMAN_FUGEN) {
+      if (!lower.startsWith(fugen, index)) continue;
+      if (findGermanStemAt(lower, index + fugen.length)) return fugen;
+    }
+
+    return "";
+  }
 
   function splitGermanCompound(word) {
     const lower = word.toLocaleLowerCase("de-DE");
@@ -234,14 +315,7 @@
     let index = 0;
 
     while (index < word.length) {
-      let stem = "";
-
-      for (const candidate of GERMAN_COMPOUND_STEMS) {
-        if (lower.startsWith(candidate, index)) {
-          stem = candidate;
-          break;
-        }
-      }
+      const stem = findGermanStemAt(lower, index);
 
       if (!stem) {
         if (!parts.length) return [word];
@@ -255,6 +329,12 @@
 
       parts.push(word.slice(index, index + stem.length));
       index += stem.length;
+
+      const fugen = findGermanFugenAt(lower, index);
+      if (fugen) {
+        parts[parts.length - 1] += word.slice(index, index + fugen.length);
+        index += fugen.length;
+      }
     }
 
     return parts.length > 1 ? parts : [word];
