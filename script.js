@@ -83,6 +83,10 @@
 
     const apply = () => {
       headings.forEach(markOverflowingGermanWords);
+
+      if (typeof window.ScrollTrigger !== "undefined") {
+        window.ScrollTrigger.refresh();
+      }
     };
 
     const schedule = () => {

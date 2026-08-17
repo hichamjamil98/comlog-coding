@@ -45,6 +45,16 @@ html[lang="de-DE"] [class*="heading-style-"] {
   max-width: 100%;
 }
 
+.section.is--home-hero {
+  height: auto;
+  min-height: calc(100vh - var(--_sizes---navbar));
+}
+
+.section.is--home-hero .hero--wrapper {
+  height: auto;
+  min-height: calc(100vh - var(--_sizes---navbar));
+}
+
 html[lang="de-DE"] [class*="heading-style-"] .de-word {
   display: inline-block;
   white-space: nowrap;
