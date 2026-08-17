@@ -478,12 +478,22 @@
         observer: true,
         observeParents: true,
         resistanceRatio: 0.75,
+        simulateTouch: true,
+        touchStartPreventDefault: false,
 
         breakpoints: {
           992: {
             slidesPerView: 3,
             slidesPerGroup: 1,
           },
+        },
+
+        mousewheel: {
+          enabled: true,
+          forceToAxis: true,
+          releaseOnEdges: true,
+          thresholdDelta: 20,
+          thresholdTime: 400,
         },
 
         keyboard: {
