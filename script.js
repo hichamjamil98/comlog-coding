@@ -151,6 +151,7 @@
         const span = document.createElement("span");
         span.className = "de-word";
         span.textContent = part;
+        span.dataset.deOriginal = part;
         fragment.appendChild(span);
       });
 
@@ -158,6 +159,124 @@
     });
 
     element.dataset.deWords = "true";
+  }
+
+  const GERMAN_COMPOUND_STEMS = [
+    "sicherheitstechnik",
+    "genehmigungs",
+    "genehmigung",
+    "sicherheits",
+    "sicherheit",
+    "speditions",
+    "spedition",
+    "transporte",
+    "transport",
+    "infrastruktur",
+    "ansprechpartner",
+    "koordination",
+    "kommissionierung",
+    "ladungsicherung",
+    "sicherung",
+    "management",
+    "logistik",
+    "anfragen",
+    "anfrage",
+    "vorfeld",
+    "service",
+    "montage",
+    "wartung",
+    "flughafen",
+    "airport",
+    "partner",
+    "netzwerk",
+    "behörden",
+    "behörde",
+    "lieferung",
+    "express",
+    "standard",
+    "versand",
+    "abwicklung",
+    "kontrolle",
+    "kontroll",
+    "terminal",
+    "technische",
+    "technik",
+    "dienste",
+    "dienst",
+    "industrie",
+    "spezial",
+    "aviation",
+    "kritische",
+    "projekt",
+    "ladung",
+    "justiz",
+    "vollzugs",
+    "anstalten",
+    "anstalt",
+    "botschaften",
+    "botschaft",
+    "leistung",
+    "bereiche",
+    "spuren",
+    "sonder",
+    "haupt",
+    "gesamt",
+  ]
+    .filter((stem, index, stems) => stems.indexOf(stem) === index)
+    .sort((left, right) => right.length - left.length);
+
+  function splitGermanCompound(word) {
+    const lower = word.toLocaleLowerCase("de-DE");
+
+    if (lower.length < 10) return [word];
+
+    const parts = [];
+    let index = 0;
+
+    while (index < word.length) {
+      let stem = "";
+
+      for (const candidate of GERMAN_COMPOUND_STEMS) {
+        if (lower.startsWith(candidate, index)) {
+          stem = candidate;
+          break;
+        }
+      }
+
+      if (!stem) {
+        if (!parts.length) return [word];
+        parts[parts.length - 1] += word.slice(index);
+        break;
+      }
+
+      const remaining = word.length - (index + stem.length);
+
+      if (index === 0 && remaining === 0) return [word];
+
+      parts.push(word.slice(index, index + stem.length));
+      index += stem.length;
+    }
+
+    return parts.length > 1 ? parts : [word];
+  }
+
+  function hyphenateGermanCompound(text) {
+    const parsed = text.match(/^([^\p{L}\p{M}]*)(.*?)([^\p{L}\p{M}]*)$/su);
+
+    if (!parsed || !parsed[2]) return text;
+
+    const parts = splitGermanCompound(parsed[2]);
+
+    if (parts.length < 2) return text;
+
+    return parsed[1] + parts.join("\u00AD") + parsed[3];
+  }
+
+  function restoreGermanWord(word) {
+    if (word.dataset.deOriginal) {
+      word.textContent = word.dataset.deOriginal;
+    }
+    word.classList.remove("is--hyphenate", "is--hyphenate-auto");
   }
 
   function paddedClientWidth(element) {
@@ -192,16 +311,27 @@
     const words = element.querySelectorAll(".de-word");
     if (!words.length) return;
 
-    words.forEach((word) => word.classList.remove("is--hyphenate"));
+    words.forEach(restoreGermanWord);
 
     const lineWidth = getGermanLineWidth(element);
     if (lineWidth <= 0) return;
 
     words.forEach((word) => {
-      const wordWidth = Math.max(word.scrollWidth, word.getBoundingClientRect().width);
+      const wordWidth = Math.max(
+        word.scrollWidth,
+        word.getBoundingClientRect().width,
+      );
 
-      if (wordWidth > lineWidth + 1) {
-        word.classList.add("is--hyphenate");
+      if (wordWidth <= lineWidth + 1) return;
+
+      const original = word.dataset.deOriginal || word.textContent;
+      const hyphenated = hyphenateGermanCompound(original);
+
+      word.classList.add("is--hyphenate");
+      word.textContent = hyphenated;
+
+      if (!hyphenated.includes("\u00AD")) {
+        word.classList.add("is--hyphenate-auto");
       }
     });
   }

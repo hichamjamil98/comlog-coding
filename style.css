@@ -54,12 +54,14 @@ html[lang="de-DE"] [class*="heading-style-"] .de-word {
 html[lang="de-DE"] [class*="heading-style-"] .de-word.is--hyphenate {
   max-width: 100%;
   white-space: normal;
+  hyphens: manual !important;
+  -webkit-hyphens: manual !important;
+  overflow-wrap: break-word;
+}
+
+html[lang="de-DE"] [class*="heading-style-"] .de-word.is--hyphenate.is--hyphenate-auto {
   hyphens: auto !important;
   -webkit-hyphens: auto !important;
-  hyphenate-limit-chars: 8 4 6;
-  -webkit-hyphenate-limit-before: 4;
-  -webkit-hyphenate-limit-after: 6;
-  overflow-wrap: anywhere;
 }
 
 html[lang="de-DE"] [class*="heading-style-"],
