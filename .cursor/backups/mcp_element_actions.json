@@ -1,0 +1,20 @@
+[
+  {
+    "label": "query",
+    "query_elements": {
+      "queries": [
+        {"label": "headings", "element_filter": {"type": "Heading"}, "children_depth": -1, "limit": 200},
+        {"label": "paragraphs", "element_filter": {"type": "Paragraph"}, "children_depth": -1, "limit": 200},
+        {"label": "buttons", "element_filter": {"type": "Button"}, "children_depth": -1, "limit": 200},
+        {"label": "text_links", "element_filter": {"type": "TextLink"}, "children_depth": -1, "limit": 200},
+        {"label": "link_blocks", "element_filter": {"type": "LinkBlock"}, "children_depth": -1, "limit": 200},
+        {"label": "links", "element_filter": {"type": "Link"}, "children_depth": -1, "limit": 200},
+        {"label": "rich_text", "element_filter": {"type": "RichText"}, "children_depth": -1, "limit": 200},
+        {"label": "form_labels", "element_filter": {"type": "FormLabel"}, "children_depth": -1, "limit": 200},
+        {"label": "list_items", "element_filter": {"type": "ListItem"}, "children_depth": -1, "limit": 200},
+        {"label": "form_inline", "element_filter": {"type": "FormInline"}, "children_depth": -1, "limit": 200}
+      ]
+    }
+  },
+  {"label": "tree", "get_all_elements": {"depth": -1}}
+]

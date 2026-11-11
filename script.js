@@ -46,6 +46,8 @@
     initParallax();
     initDropdowns(mobileQuery);
     initMobileMenu(mobileQuery);
+    window.initHeroCheckLists?.();
+    window.initServiceRichtextEmphasis?.();
   });
 
   /* =========================================================================
@@ -378,22 +380,11 @@
   }
 
   function renderGermanCompound(word, lead, parts, trail) {
-    word.textContent = "";
+    // Keep soft hyphens in one text node. Soft hyphens between
+    // inline-block .de-part spans can paint as visible dashes even
+    // when the word is not wrapping (Comlog feedback #10 / #12).
+    word.textContent = `${lead}${parts.join("\u00AD")}${trail}`;
     word.classList.add("is--hyphenate");
-
-    parts.forEach((part, index) => {
-      if (index > 0) {
-        word.appendChild(document.createTextNode("\u00AD"));
-      }
-
-      const piece = document.createElement("span");
-      piece.className = "de-part";
-      piece.textContent =
-        (index === 0 ? lead : "") +
-        part +
-        (index === parts.length - 1 ? trail : "");
-      word.appendChild(piece);
-    });
   }
 
   function paddedClientWidth(element) {
@@ -1422,3 +1413,138 @@ function initMarqueeScrollDirection() {
 document.addEventListener("DOMContentLoaded", () => {
   initMarqueeScrollDirection();
 });
+
+/* ==========================================================================
+   HERO CHECKLISTS + SERVICE BODY EMPHASIS
+   Webflow rich-text props only accept plain innerText via MCP, so lists
+   and <strong> spans are restored on the published page to match Figma.
+========================================================================== */
+
+(() => {
+  "use strict";
+
+  const SERVICE_EMPHASIS = [
+    // Vorfeldservice
+    "Anlieferung und den Abtransport von Materialien, Ersatzteilen und Anlagenkomponenten",
+    "Versorgung der Infrastruktur und Anlagen am Vorfeld",
+    "Luftsicherheitsschulungsverordnung geschult und zertifiziert",
+    "Flughafenausweise sowie Vorfeldgenehmigungen",
+    "großen deutschen Bundesflughäfen",
+    // Spedition
+    "vollständige Planung, Organisation und Durchführung",
+    "Standardlieferung über Expressversand bis zu komplexen Sondertransporten",
+    "individuelle Konzepte, die exakt auf Ihre Ladung, Route und Anforderungen abgestimmt sind",
+    "Zollabwicklung und Ladungssicherung",
+    "Koordination aller notwendigen Behördengenehmigungen",
+    "bewährten Partnernetzwerk",
+    // Projektlogistik
+    "präzise Planung und reibungslose Umsetzung",
+    "Realisierung kritischer Infrastrukturprojekte",
+    "Flughäfen und hochspezialisierten Anlagen für Behörden",
+    "detaillierten Bedarfsanalyse",
+    "Beschaffung und Lagerung sensibler Komponenten",
+    "just-in-time-Lieferung",
+    // Technische Dienste
+    "ersten Konzeptidee über die Montage bis zum laufenden technischen Betrieb",
+    "Installation, Aufbau und Inbetriebnahme von Sicherheitstechnik",
+    "Flughäfen, Behörden und Hochsicherheitsbereichen",
+    "regelmäßige Wartung und technischen Service",
+    "zertifizierten Mitarbeitern",
+    "höchste Qualität und Termintreue",
+  ].sort((a, b) => b.length - a.length);
+
+  function initHeroCheckLists() {
+    document.querySelectorAll(".richtext.w-richtext").forEach((richtext) => {
+      richtext.querySelectorAll("p").forEach((paragraph) => {
+        if (!paragraph.querySelector("br")) return;
+        if (paragraph.closest("li")) return;
+
+        const html = paragraph.innerHTML;
+        const parts = html
+          .split(/<br\s*\/?>/i)
+          .map((part) => part.trim())
+          .filter(Boolean);
+
+        if (parts.length < 2) return;
+
+        // Only convert short bullet-like lines, not long prose with accidental brs.
+        if (parts.some((part) => part.replace(/<[^>]+>/g, "").length > 120)) {
+          return;
+        }
+
+        const list = document.createElement("ul");
+        list.setAttribute("role", "list");
+
+        parts.forEach((part) => {
+          const item = document.createElement("li");
+          item.innerHTML = part;
+          list.appendChild(item);
+        });
+
+        paragraph.replaceWith(list);
+      });
+    });
+  }
+
+  function emphasizeTextNode(node, phrases) {
+    const text = node.nodeValue;
+    if (!text || !/\S/.test(text)) return;
+
+    let match = null;
+    let phrase = null;
+
+    for (const candidate of phrases) {
+      const index = text.indexOf(candidate);
+      if (index === -1) continue;
+      if (!match || index < match.index) {
+        match = { index, length: candidate.length };
+        phrase = candidate;
+      }
+    }
+
+    if (!match || !phrase) return;
+
+    const fragment = document.createDocumentFragment();
+    const before = text.slice(0, match.index);
+    const after = text.slice(match.index + match.length);
+
+    if (before) fragment.appendChild(document.createTextNode(before));
+
+    const strong = document.createElement("strong");
+    strong.textContent = phrase;
+    fragment.appendChild(strong);
+
+    if (after) {
+      const afterNode = document.createTextNode(after);
+      fragment.appendChild(afterNode);
+      node.parentNode.replaceChild(fragment, node);
+      emphasizeTextNode(afterNode, phrases);
+      return;
+    }
+
+    node.parentNode.replaceChild(fragment, node);
+  }
+
+  function initServiceRichtextEmphasis() {
+    document.querySelectorAll(".richtext-services").forEach((richtext) => {
+      const walker = document.createTreeWalker(richtext, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          if (!node.nodeValue || !/\S/.test(node.nodeValue)) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          if (node.parentElement?.closest("strong")) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach((node) => emphasizeTextNode(node, SERVICE_EMPHASIS));
+    });
+  }
+
+  window.initHeroCheckLists = initHeroCheckLists;
+  window.initServiceRichtextEmphasis = initServiceRichtextEmphasis;
+})();

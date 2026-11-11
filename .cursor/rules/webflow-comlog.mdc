@@ -1,0 +1,18 @@
+---
+description: Pin this repo to the Comlog Webflow site for MCP work
+alwaysApply: true
+---
+
+# Webflow site binding
+
+This repo is the custom code for the **Comlog** Webflow site.
+
+- Project MCP server only: `webflow-comlog` from this repo's `.cursor/mcp.json`
+- Do **not** use `plugin-webflow-webflow` or any other repo's Webflow MCP connection
+- Site display name: Comlog
+- Site short name / subdomain: `comlog-staging`
+- Site ID: `6a6cb753d670ca285ae24781`
+- Staging URL: https://comlog-staging.webflow.io/
+- Custom code host: https://comlog-coding.netlify.app/
+
+Always use site ID `6a6cb753d670ca285ae24781`. If `webflow-comlog` is missing or unauthorized, ask the user to Authenticate that project MCP — do not fall back to another Webflow MCP.

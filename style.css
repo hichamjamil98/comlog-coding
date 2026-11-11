@@ -69,13 +69,6 @@ html[lang="de-DE"] [class*="heading-style-"] .de-word.is--hyphenate {
   -webkit-hyphens: manual !important;
 }
 
-html[lang="de-DE"] [class*="heading-style-"] .de-part {
-  display: inline-block;
-  white-space: nowrap;
-  hyphens: none !important;
-  -webkit-hyphens: none !important;
-}
-
 html[lang="de-DE"] [class*="heading-style-"],
 html[lang="de-DE"] .career--tag,
 html[lang="de-DE"] .trim--text,
