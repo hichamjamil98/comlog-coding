@@ -1436,7 +1436,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "individuelle Konzepte, die exakt auf Ihre Ladung, Route und Anforderungen abgestimmt sind",
     "Zollabwicklung und Ladungssicherung",
     "Koordination aller notwendigen Behördengenehmigungen",
-    "weltweiten Partnernetzwerk",
+    "bewährten Partnernetzwerk",
     // Projektlogistik
     "präzise Planung und reibungslose Umsetzung",
     "Realisierung kritischer Infrastrukturprojekte",
