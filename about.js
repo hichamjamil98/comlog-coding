@@ -107,7 +107,7 @@
           roundLengths: false,
 
           breakpoints: {
-            992: {
+            768: {
               slidesPerView: 2,
               slidesPerGroup: 1,
             },

@@ -27,8 +27,8 @@
 /*
   Swiper layout:
 
-  Desktop (≥992px): 2 slides, move by 1
-  Below 992px:      1 slide, move by 1
+  Desktop / tablet (≥768px): 2 slides, move by 1
+  Mobile:                    1 slide, move by 1
 
   Spacing:
   Desktop: 1.5rem
