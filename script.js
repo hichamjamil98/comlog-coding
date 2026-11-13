@@ -1298,7 +1298,7 @@
 ========================================================================== */
 
 function prepareHomePartnersDualMarquee() {
-  // Mobile only: second logo row scrolling the opposite direction
+  // Mobile only: two rows, split logos, opposite directions
   if (!window.matchMedia("(max-width: 767px)").matches) return;
 
   const section = document.querySelector(".section.is--home-partners");
@@ -1314,6 +1314,18 @@ function prepareHomePartnersDualMarquee() {
     return;
   }
 
+  const topCollection = original.querySelector(
+    "[data-marquee-collection-target]",
+  );
+  if (!topCollection) return;
+
+  const items = Array.from(topCollection.children);
+  if (items.length < 2) return;
+
+  const mid = Math.ceil(items.length / 2);
+  const topItems = items.slice(0, mid);
+  const bottomItems = items.slice(mid);
+
   original.classList.add("is--partners-row-1");
 
   const row2 = original.cloneNode(true);
@@ -1327,6 +1339,16 @@ function prepareHomePartnersDualMarquee() {
     "data-marquee-direction",
     topDirection === "right" ? "left" : "right",
   );
+
+  topCollection.replaceChildren(...topItems);
+
+  const bottomCollection = row2.querySelector(
+    "[data-marquee-collection-target]",
+  );
+  if (!bottomCollection) return;
+
+  // Move the second half into the cloned row (unique logos per row)
+  bottomCollection.replaceChildren(...bottomItems);
 
   original.after(row2);
 }
