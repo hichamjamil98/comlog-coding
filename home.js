@@ -348,10 +348,16 @@
       const heading = slide.querySelector(".heading-style-76");
       const content = slide.querySelector(".service--content");
       const cardBg = slide.querySelector(".service--card-bg");
+      const cardGradient = slide.querySelector(".service--card-gradient");
       const image = slide.querySelector(".image--absolute100");
-      const targets = [heading, content, cardBg, image, cardHover].filter(
-        Boolean,
-      );
+      const targets = [
+        heading,
+        content,
+        cardBg,
+        cardGradient,
+        image,
+        cardHover,
+      ].filter(Boolean);
 
       if (!targets.length) return;
 
@@ -359,6 +365,7 @@
         if (heading) gsap.set(heading, { opacity: 0, y: "-1rem" });
         if (content) gsap.set(content, { height: 0, overflow: "hidden" });
         if (cardBg) gsap.set(cardBg, { opacity: 0 });
+        if (cardGradient) gsap.set(cardGradient, { opacity: 1 });
         if (image) gsap.set(image, { scale: 1 });
         if (cardHover) gsap.set(cardHover, { pointerEvents: "none" });
       };
@@ -377,6 +384,7 @@
         if (content) gsap.set(content, { overflow: "hidden" });
 
         if (cardBg) gsap.to(cardBg, { opacity: 1, ...tweenVars });
+        if (cardGradient) gsap.to(cardGradient, { opacity: 0, ...tweenVars });
         if (heading) gsap.to(heading, { opacity: 1, y: 0, ...tweenVars });
         if (content) {
           gsap.to(content, {
@@ -398,6 +406,7 @@
         if (content) gsap.set(content, { overflow: "hidden" });
 
         if (cardBg) gsap.to(cardBg, { opacity: 0, ...tweenVars });
+        if (cardGradient) gsap.to(cardGradient, { opacity: 1, ...tweenVars });
         if (heading) {
           gsap.to(heading, {
             opacity: 0,

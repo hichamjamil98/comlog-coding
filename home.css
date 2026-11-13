@@ -153,7 +153,8 @@ html:not(.w-editor) body:not(.is-loading) .navbar {
     will-change: height;
   }
 
-  .swiper-slide.is--services .service--card-bg {
+  .swiper-slide.is--services .service--card-bg,
+  .swiper-slide.is--services .service--card-gradient {
     will-change: opacity;
   }
 }
@@ -237,7 +238,8 @@ html:not(.w-editor) body:not(.is-loading) .navbar {
   .swiper-slide.is--services .image--absolute100,
   .swiper-slide.is--services .heading-style-76,
   .swiper-slide.is--services .service--content,
-  .swiper-slide.is--services .service--card-bg {
+  .swiper-slide.is--services .service--card-bg,
+  .swiper-slide.is--services .service--card-gradient {
     transition: none !important;
   }
 }
