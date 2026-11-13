@@ -484,6 +484,10 @@
         resistanceRatio: 0.75,
 
         breakpoints: {
+          768: {
+            slidesPerView: 2,
+            slidesPerGroup: 1,
+          },
           992: {
             slidesPerView: 3,
             slidesPerGroup: 1,
