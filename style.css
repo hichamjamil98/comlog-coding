@@ -50,9 +50,11 @@ html[lang="de-DE"] [class*="heading-style-"] {
   min-height: calc(100vh - var(--_sizes---navbar));
 }
 
-.section.is--home-hero .hero--wrapper {
-  height: auto;
-  min-height: calc(100vh - var(--_sizes---navbar));
+@media screen and (min-width: 992px) {
+  .section.is--home-hero .hero--wrapper {
+    height: auto;
+    min-height: calc(100vh - var(--_sizes---navbar));
+  }
 }
 
 html[lang="de-DE"] [class*="heading-style-"] .de-word {
