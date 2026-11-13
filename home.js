@@ -468,14 +468,7 @@
           homeServices?.querySelector(".swiper--button.is--next") || null;
       }
 
-      const getSpacing = () => {
-        const width = window.innerWidth;
-
-        if (width >= 992) return 0;
-        if (width >= 768) return remToPx(1);
-
-        return 0;
-      };
+      const getSpacing = () => 0;
 
       const swiper = new Swiper(slider, {
         slidesPerView: 1,

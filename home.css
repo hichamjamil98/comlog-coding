@@ -186,7 +186,7 @@ html:not(.w-editor) body:not(.is-loading) .navbar {
 @media screen and (min-width: 768px) and (max-width: 991px) {
   /*
     Keep card content exactly as configured in Webflow.
-    Swiper applies 1rem spacing to both sliders.
+    Services slider: 0 spacing. Projects slider: 1rem via JS.
   */
 }
 
