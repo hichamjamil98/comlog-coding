@@ -89,9 +89,7 @@
           spaceBetween: getQuotesSpacing(),
           speed: 450,
 
-          loop: slides.length > 2,
-          loopAdditionalSlides: Math.min(slides.length, 4),
-          loopPreventsSliding: false,
+          loop: false,
 
           centeredSlides: false,
           centerInsufficientSlides: false,
