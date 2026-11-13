@@ -105,12 +105,10 @@ html:not(.w-editor) body:not(.is-loading) .navbar {
   Swiper layout:
 
   Desktop (≥992px): 3 slides, move by 1
-  Below 992px:      1 slide, move by 1
+  Tablet (≥768px):  2 slides, move by 1
+  Mobile:           1 slide, move by 1
 
-  Spacing:
-  Desktop: 0
-  Tablet:  1rem
-  Mobile:  0
+  Spacing: 0 at all breakpoints
 */
 
 .swiper.is--services .swiper-wrapper {
