@@ -1297,6 +1297,40 @@
    MARQUEE SCROLL DIRECTION
 ========================================================================== */
 
+function prepareHomePartnersDualMarquee() {
+  // Mobile only: second logo row scrolling the opposite direction
+  if (!window.matchMedia("(max-width: 767px)").matches) return;
+
+  const section = document.querySelector(".section.is--home-partners");
+  if (!section) return;
+
+  const original = section.querySelector(
+    "[data-marquee-scroll-direction-target]",
+  );
+  if (
+    !original ||
+    section.querySelector(".marquee-advanced.is--partners-row-2")
+  ) {
+    return;
+  }
+
+  original.classList.add("is--partners-row-1");
+
+  const row2 = original.cloneNode(true);
+  row2.classList.add("is--partners-row-2");
+  row2.classList.remove("is--partners-row-1");
+
+  const topDirection = (
+    original.getAttribute("data-marquee-direction") || "right"
+  ).toLowerCase();
+  row2.setAttribute(
+    "data-marquee-direction",
+    topDirection === "right" ? "left" : "right",
+  );
+
+  original.after(row2);
+}
+
 function initMarqueeScrollDirection() {
   document
     .querySelectorAll("[data-marquee-scroll-direction-target]")
@@ -1411,6 +1445,7 @@ function initMarqueeScrollDirection() {
 
 // Initialize Marquee with Scroll Direction
 document.addEventListener("DOMContentLoaded", () => {
+  prepareHomePartnersDualMarquee();
   initMarqueeScrollDirection();
 });
 

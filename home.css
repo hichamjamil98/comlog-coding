@@ -204,17 +204,6 @@ html:not(.w-editor) body:not(.is-loading) .navbar {
   .swiper.is--projects {
     overflow: visible;
   }
-
-  /* Partners: stack logos into two scrolling rows */
-  .section.is--home-partners .marquee-advanced__collection {
-    display: grid;
-    grid-template-rows: repeat(2, auto);
-    grid-auto-flow: column;
-    align-items: center;
-    column-gap: 2rem;
-    row-gap: 1rem;
-    padding-right: 2rem;
-  }
 }
 
 /* ==========================================================================
