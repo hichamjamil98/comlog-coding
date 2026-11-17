@@ -1,0 +1,31 @@
+source_domain,old_path,new_path,confidence,notes
+www.comlog-logistic.de,/contact,/kontakt,high,Old EN alias
+www.comlog-logistic.de,/datenschutzbestimmungen,/datenschutz,high,Privacy slug differs
+www.comlog-logistic.de,/leistungen/spedition,/leistungen/spedition-sondertransport,high,Merged page
+www.comlog-logistic.de,/leistungen/sondertransporte,/leistungen/spedition-sondertransport,high,Merged page
+www.comlog-logistic.de,/leistungen/planung-montage,/leistungen/technische-dienste,high,Renamed service
+www.comlog-logistic.de,/leistungen-menu/spedition,/leistungen/spedition-sondertransport,medium,Old broken menu alias
+www.comlog-logistic.de,/leistungen-menu/sondertransporte,/leistungen/spedition-sondertransport,medium,Old broken menu alias
+www.comlog-logistic.de,/leistungen-menu/planung-montage,/leistungen/technische-dienste,medium,Old broken menu alias
+www.comlog-logistic.de,/leistungen-menu/vorfeldservice,/leistungen/vorfeld-service,medium,Old broken menu alias
+www.comlog-logistic.de,/karriere/berufskraftfahrer,/karriere/berufskraftfahrer-m-w-d---fernverkehr,high,CMS slug
+www.comlog-logistic.de,/karriere/montage-service,/karriere/montage--und-servicetechniker-m-w-d,high,CMS slug
+www.comlog-logistic.de,/news-menu,/,review,No news/blog on new site
+www.comlog-logistic.de,/news-menu/wichtige-transporte-starke-lieferketten,/projects/transporte-mit-verantwortung,medium,Thematic match
+www.comlog-logistic.de,/news-menu/speziallogistik-ist-schluessel-fuer-infrastrukturprojekte,/projects/speziallogistik-fur-kritische-infrastruktur,medium,Thematic match
+www.comlog-logistic.de,/news-menu/projektlogistik-erfolgreiche-transporte,/leistungen/projektlogistik,medium,Mapped to service
+www.comlog-logistic.de,/news-menu/planung-lieferung-montage-aus-einer-hand,/leistungen/technische-dienste,medium,Mapped to service
+www.comlog-logistic.de,/tags-page/cargo,/leistungen/spedition-sondertransport,medium,Tag archive
+www.comlog-logistic.de,/tags-page/logistik,/,review,Generic tag
+www.comlog-logistic.de,/tags-page/projektlogistik,/leistungen/projektlogistik,medium,
+www.comlog-logistic.de,/tags-page/sondertransporte,/leistungen/spedition-sondertransport,medium,
+www.comlog-logistic.de,/tags-page/transport,/leistungen/spedition-sondertransport,medium,
+www.comlog-logistic.de,/barrierefreiheit,/,review,No accessibility page
+www.comlog-logistic.de,/component/sppagebuilder/page/25,/,medium,Joomla builder home ID
+comlog-staging / interim,/uber-uns,/ueberuns,high,Former new-site slug
+comlog-staging / interim,/contact,/kontakt,high,Former new-site slug
+comlog-staging / interim,/career,/karriere,high,Former new-site slug
+comlog-staging / interim,/services/projektlogistik,/leistungen/projektlogistik,high,Former new-site path
+comlog-staging / interim,/services/vorfeldservice,/leistungen/vorfeld-service,high,Former new-site path
+comlog-staging / interim,/services/technische-dienste,/leistungen/technische-dienste,high,Former new-site path
+comlog-staging / interim,/services/spedition-sondertransport,/leistungen/spedition-sondertransport,high,Former new-site path
